@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/linkpoolio/asset-price-cl-ea/web"
 	"log"
 	"net/http"
-	"github.com/linkpoolio/asset-price-cl-ea/web"
 )
 
 func main() {
