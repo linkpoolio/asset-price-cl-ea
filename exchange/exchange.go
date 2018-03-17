@@ -1,9 +1,7 @@
 package exchange
 
-import "net/http"
-
-type SupportedExchanges struct {
-	exchanges []Exchange
+type Config struct {
+	BaseUrl string
 }
 
 type Response struct {
@@ -12,17 +10,17 @@ type Response struct {
 	Volume float64 `json:"volume"`
 }
 
-type Config struct {
-	BaseUrl string
-	Client *http.Client
+type SupportedExchanges struct {
+	exchanges []Exchange
 }
 
 type Exchange interface {
-	GetConfig() Config
+	GetConfig() *Config
 	GetTicker(base, quote string) (*Response, error)
 }
 
 func GetSupportedExchanges() []Exchange {
-	exchanges := []Exchange{ GDAX{} }
+	exchanges := []Exchange{ GDAX{}, Bitstamp{} }
 	return exchanges
 }
+
