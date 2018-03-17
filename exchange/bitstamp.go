@@ -87,5 +87,5 @@ func (exchange Bitstamp) SetPairs() {
 }
 
 func (exchange Bitstamp) GetConfig() *Config {
-	return &Config{BaseUrl: "https://www.bitstamp.net/api/v2", Name: "Bitstamp", Pairs: bitstampPairs}
+	return &Config{BaseUrl: "https://bitstamp.net/api/v2", Name: "Bitstamp", Pairs: bitstampPairs}
 }

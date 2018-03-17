@@ -15,5 +15,4 @@ asset-price-cl-ea
 .glide/
 
 # Dep
-Gopkg.lock
 vendor/
