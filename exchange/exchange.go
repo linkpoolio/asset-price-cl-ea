@@ -1,6 +1,7 @@
 package exchange
 
 type Config struct {
+	Name string
 	BaseUrl string
 }
 
@@ -16,7 +17,7 @@ type SupportedExchanges struct {
 
 type Exchange interface {
 	GetConfig() *Config
-	GetTicker(base, quote string) (*Response, error)
+	GetResponse(base, quote string) (*Response, error)
 }
 
 func GetSupportedExchanges() []Exchange {

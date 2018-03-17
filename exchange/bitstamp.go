@@ -17,7 +17,7 @@ type BitstampModel struct {
 	Volume string `json:"volume"`
 }
 
-func (exchange Bitstamp) GetTicker(base, quote string) (*Response, error) {
+func (exchange Bitstamp) GetResponse(base, quote string) (*Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest(
 		"GET", fmt.Sprintf("%s/ticker/%s%s", exchange.GetConfig().BaseUrl, base, quote), nil)
@@ -49,5 +49,5 @@ func (exchange Bitstamp) GetTicker(base, quote string) (*Response, error) {
 }
 
 func (exchange Bitstamp) GetConfig() *Config {
-	return &Config{BaseUrl: "https://www.bitstamp.net/api/v2"}
+	return &Config{BaseUrl: "https://www.bitstamp.net/api/v2", Name: "Bitstamp"}
 }

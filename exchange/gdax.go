@@ -9,7 +9,7 @@ type GDAX struct {
 	Exchange
 }
 
-func (exchange GDAX) GetTicker(base, quote string) (*Response, error) {
+func (exchange GDAX) GetResponse(base, quote string) (*Response, error) {
 	client := gdax.NewClient("", "", "")
 
 	ticker, err := client.GetTicker(fmt.Sprintf("%s-%s", base, quote))
@@ -18,4 +18,8 @@ func (exchange GDAX) GetTicker(base, quote string) (*Response, error) {
 	}
 
 	return &Response{Price: ticker.Price, Volume: ticker.Volume}, nil
+}
+
+func (exchange GDAX) GetConfig() *Config {
+	return &Config{Name: "GDAX"}
 }
