@@ -60,24 +60,22 @@ func GetPrice(w rest.ResponseWriter, r *rest.Request) {
 }
 
 func getExchangeResponses(base, quote string) ([]*exchange.Response, []*exchange.Error) {
-	supportedExchanges := exchange.GetSupportedExchanges()
+	exchanges := getExchangesWithPairSupport(base, quote)
 
 	var wg sync.WaitGroup
-	wg.Add(len(supportedExchanges))
+	wg.Add(len(exchanges))
 
 	var responses []*exchange.Response
 	var errors []*exchange.Error
 
-	for _, exc := range supportedExchanges {
+	for _, exc := range exchanges {
 		go func(exc exchange.Exchange) {
 			defer wg.Done()
-			if isSupportedExchange(exc, base, quote) {
-				response, err := exc.GetResponse(base, quote)
-				if err != nil {
-					errors = append(errors, err)
-				}
-				responses = append(responses, response)
+			response, err := exc.GetResponse(base, quote)
+			if err != nil {
+				errors = append(errors, err)
 			}
+			responses = append(responses, response)
 		}(exc)
 	}
 
@@ -86,13 +84,26 @@ func getExchangeResponses(base, quote string) ([]*exchange.Response, []*exchange
 	return responses, errors
 }
 
-func isSupportedExchange(exc exchange.Exchange, base, quote string) bool {
-	supported := false
-	for _, pair := range exc.GetPairs() {
-		if pair.Base == base && pair.Quote == quote {
-			supported = true
-			break
-		}
+func getExchangesWithPairSupport(base, quote string) []exchange.Exchange {
+	exchanges := exchange.GetSupportedExchanges()
+
+	var wg sync.WaitGroup
+	wg.Add(len(exchanges))
+
+	var supported []exchange.Exchange
+	for _, exc := range exchanges {
+		go func(exc exchange.Exchange) {
+			defer wg.Done()
+			for _, pair := range exc.GetPairs() {
+				if pair.Base == base && pair.Quote == quote {
+					supported = append(supported, exc)
+					break
+				}
+			}
+		}(exc)
 	}
+
+	wg.Wait()
+
 	return supported
 }
