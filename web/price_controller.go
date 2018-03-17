@@ -8,14 +8,26 @@ import (
 	"net/http"
 )
 
+type Error struct {
+	Error string
+	StatusCode int
+	Errors []*exchange.Error
+}
+
 func GetPrice(w rest.ResponseWriter, r *rest.Request) {
 	base := r.PathParam("base")
 	quote := r.PathParam("quote")
 
-	// Call the exchanges through a concurrently
+	// Call the exchanges concurrently
 	responses, errors := getExchangeResponses(base, quote)
 	if len(errors) > 0 {
-		rest.Error(w, fmt.Sprintf("Following errors were given: %s", errors), http.StatusInternalServerError)
+		errorObj := &Error{
+			fmt.Sprintf("errors given when getting prices from exchanges"),
+			http.StatusInternalServerError,
+			errors,
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteJson(&errorObj)
 		return
 	}
 
@@ -31,22 +43,21 @@ func GetPrice(w rest.ResponseWriter, r *rest.Request) {
 	w.WriteJson(&exchange.Response{fmt.Sprintf("%s-%s", base, quote), weightedPrice, totalVolume})
 }
 
-func getExchangeResponses(base, quote string) ([]*exchange.Response, []error) {
+func getExchangeResponses(base, quote string) ([]*exchange.Response, []*exchange.Error) {
 	supportedExchanges := exchange.GetSupportedExchanges()
 
 	var wg sync.WaitGroup
 	wg.Add(len(supportedExchanges))
 
 	var responses []*exchange.Response
-	var errors []error
+	var errors []*exchange.Error
 
 	for _, exc := range supportedExchanges {
 		go func(exc exchange.Exchange) {
 			defer wg.Done()
-			response, e := exc.GetResponse(base, quote)
-			if e != nil {
-				error := fmt.Errorf("error retrieving information from %s", exc.GetConfig().Name)
-				errors = append(errors, error)
+			response, err := exc.GetResponse(base, quote)
+			if err != nil {
+				errors = append(errors, err)
 			}
 			responses = append(responses, response)
 		}(exc)

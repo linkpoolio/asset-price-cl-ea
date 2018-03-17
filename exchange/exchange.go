@@ -5,6 +5,12 @@ type Config struct {
 	BaseUrl string
 }
 
+type Error struct {
+	Exchange string
+	Status string
+	Message string
+}
+
 type Response struct {
 	Id string `json:"id"`
 	Price float64 `json:"price"`
@@ -17,7 +23,7 @@ type SupportedExchanges struct {
 
 type Exchange interface {
 	GetConfig() *Config
-	GetResponse(base, quote string) (*Response, error)
+	GetResponse(base, quote string) (*Response, *Error)
 }
 
 func GetSupportedExchanges() []Exchange {
