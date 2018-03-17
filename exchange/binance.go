@@ -19,7 +19,7 @@ type BinanceProduct struct {
 	Volume string `json:"volume"`
 }
 
-func (exchange Binance) GetResponse(base, quote string) (*Response, *Error) {
+func (exchange Binance) GetPrice(base, quote string) (*Response, *Error) {
 	client := &http.Client{}
 	req, err := http.NewRequest(
 		"GET", fmt.Sprintf("%s/ticker/24hr?symbol=%s%s", exchange.GetConfig().BaseUrl, base, quote), nil)

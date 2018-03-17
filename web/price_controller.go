@@ -71,7 +71,7 @@ func getExchangeResponses(base, quote string) ([]*exchange.Response, []*exchange
 	for _, exc := range exchanges {
 		go func(exc exchange.Exchange) {
 			defer wg.Done()
-			response, err := exc.GetResponse(base, quote)
+			response, err := exc.GetPrice(base, quote)
 			if err != nil {
 				errors = append(errors, err)
 			}
