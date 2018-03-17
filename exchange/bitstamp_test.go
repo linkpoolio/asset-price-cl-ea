@@ -6,11 +6,12 @@ import (
 	"log"
 )
 
-func TestBitstamp_GetPairs(t *testing.T) {
+func TestBitstamp_SetPairs(t *testing.T) {
 	t.Parallel()
 
 	bitstamp := Bitstamp{}
-	pairs := bitstamp.GetPairs()
+	bitstamp.SetPairs()
+	pairs := bitstamp.GetConfig().Pairs
 
 	assert.Contains(t, pairs, &Pair{"BTC", "USD"})
 	assert.Contains(t, pairs, &Pair{"ETH", "EUR"})

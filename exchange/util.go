@@ -4,6 +4,7 @@ type Config struct {
 	Name string
 	BaseUrl string
 	Client interface{}
+	Pairs []*Pair
 }
 
 type Error struct {
@@ -30,7 +31,7 @@ type SupportedExchanges struct {
 type Exchange interface {
 	GetConfig() *Config
 	GetPrice(base, quote string) (*Response, *Error)
-	GetPairs() []*Pair
+	SetPairs()
 }
 
 func GetSupportedExchanges() []Exchange {

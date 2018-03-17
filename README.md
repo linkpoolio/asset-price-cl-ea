@@ -13,7 +13,7 @@ Make sure [Golang](https://golang.org/pkg/) is installed.
 
 Build:
 ```
-go get
+dep ensure -v
 go build -o asset-price-cl-ea
 ```
 

@@ -5,6 +5,10 @@ import (
 	"log"
 )
 
+type Log struct {
+	Message string
+}
+
 func Api() *rest.Api{
 	api := rest.NewApi()
 	api.Use(rest.DefaultDevStack...)
@@ -14,6 +18,12 @@ func Api() *rest.Api{
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.SetPrefix("Asset Price CL Adaptor ")
+	log.Print("Retrieving exchange trading pairs...")
+	SetTradingPairs()
+	log.Print("Set trading pairs, starting API...")
+
 	api.SetApp(router)
+	log.Print("Api started!")
 	return api
 }

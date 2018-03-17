@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"strconv"
 	"strings"
+	"log"
 )
 
 type Bitstamp struct {
@@ -22,6 +23,8 @@ type BitstampPair struct {
 	Name string `json:"name"`
 	Trading string `json:"trading"`
 }
+
+var bitstampPairs []*Pair
 
 func (exchange Bitstamp) GetPrice(base, quote string) (*Response, *Error) {
 	client := &http.Client{}
@@ -54,41 +57,35 @@ func (exchange Bitstamp) GetPrice(base, quote string) (*Response, *Error) {
 	return &Response{exchange.GetConfig().Name, currentPrice, currentVolume}, nil
 }
 
-func (exchange Bitstamp) GetPairs() []*Pair {
+func (exchange Bitstamp) SetPairs() {
 	client := &http.Client{}
 	req, err := http.NewRequest(
 		"GET", fmt.Sprintf("%s/trading-pairs-info/", exchange.GetConfig().BaseUrl), nil)
 	if err != nil {
-		print(err.Error())
-		return []*Pair{}
+		log.Fatal(err)
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		print(err.Error())
-		return []*Pair{}
+		log.Fatal(err)
 	}
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		print(err.Error())
-		return []*Pair{}
+		log.Fatal(err)
 	}
-	var bitstampPairs []BitstampPair
-	err = json.Unmarshal(bodyBytes, &bitstampPairs)
+	var bPairs []BitstampPair
+	err = json.Unmarshal(bodyBytes, &bPairs)
 	if err != nil {
-		print(err.Error())
-		return []*Pair{}
+		log.Fatal(err)
 	}
 
-	var pairs []*Pair
-	for _, pair := range bitstampPairs {
+	for _, pair := range bPairs {
 		if pair.Trading == "Enabled" {
 			currencies := strings.Split(pair.Name, "/")
-			pairs = append(pairs, &Pair{currencies[0], currencies[1]})
+			bitstampPairs = append(bitstampPairs, &Pair{currencies[0], currencies[1]})
 		}
 	}
-	return pairs
 }
 
 func (exchange Bitstamp) GetConfig() *Config {
-	return &Config{BaseUrl: "https://www.bitstamp.net/api/v2", Name: "Bitstamp"}
+	return &Config{BaseUrl: "https://www.bitstamp.net/api/v2", Name: "Bitstamp", Pairs: bitstampPairs}
 }

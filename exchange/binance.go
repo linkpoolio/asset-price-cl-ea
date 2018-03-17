@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"encoding/json"
+	"log"
 )
 
 type Binance struct {
@@ -18,6 +19,8 @@ type BinanceProduct struct {
 	LastPrice string `json:"lastprice"`
 	Volume string `json:"volume"`
 }
+
+var binancePairs []*Pair
 
 func (exchange Binance) GetPrice(base, quote string) (*Response, *Error) {
 	client := &http.Client{}
@@ -50,22 +53,24 @@ func (exchange Binance) GetPrice(base, quote string) (*Response, *Error) {
 	return &Response{exchange.GetConfig().Name, currentPrice, currentVolume}, nil
 }
 
-func (exchange Binance) GetPairs() []*Pair {
+func (exchange Binance) SetPairs() {
 	clientInterface := exchange.GetConfig().Client
 	client := clientInterface.(*binance.Client)
 
 	exchangeInfo, err := client.NewExchangeInfoService().Do(context.Background())
 	if err != nil {
-		return []*Pair{}
+		log.Fatal(err)
 	}
 
-	var pairs []*Pair
 	for _, product := range exchangeInfo.Symbols {
-		pairs = append(pairs, &Pair{product.BaseAsset, product.QuoteAsset})
+		binancePairs = append(binancePairs, &Pair{product.BaseAsset, product.QuoteAsset})
 	}
-	return pairs
 }
 
 func (exchange Binance) GetConfig() *Config {
-	return &Config{Name: "Binance", BaseUrl: "https://www.binance.com/api/v1", Client: binance.NewClient("", "")}
+	return &Config{
+		Name: "Binance",
+		BaseUrl: "https://www.binance.com/api/v1",
+		Client: binance.NewClient("", ""),
+		Pairs: binancePairs}
 }

@@ -6,11 +6,12 @@ import (
 	"log"
 )
 
-func TestGDAX_GetPairs(t *testing.T) {
+func TestGDAX_SetPairs(t *testing.T) {
 	t.Parallel()
 
 	gdax := GDAX{}
-	pairs := gdax.GetPairs()
+	gdax.SetPairs()
+	pairs := gdax.GetConfig().Pairs
 
 	assert.Contains(t, pairs, &Pair{"BTC", "USD"})
 	assert.Contains(t, pairs, &Pair{"ETH", "EUR"})

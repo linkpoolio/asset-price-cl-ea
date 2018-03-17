@@ -3,11 +3,14 @@ package exchange
 import (
 	"github.com/preichenberger/go-gdax"
 	"fmt"
+	"log"
 )
 
 type GDAX struct {
 	Exchange
 }
+
+var gdaxPairs []*Pair
 
 func (exchange GDAX) GetPrice(base, quote string) (*Response, *Error) {
 	clientInterface := exchange.GetConfig().Client
@@ -21,21 +24,19 @@ func (exchange GDAX) GetPrice(base, quote string) (*Response, *Error) {
 	return &Response{exchange.GetConfig().Name, ticker.Price,  ticker.Volume}, nil
 }
 
-func (exchange GDAX) GetPairs() []*Pair {
+func (exchange GDAX) SetPairs() {
 	clientInterface := exchange.GetConfig().Client
 	client := clientInterface.(*gdax.Client)
 
 	products, err := client.GetProducts()
 	if err != nil {
-		return []*Pair{}
+		log.Fatal(err)
 	}
-	var pairs []*Pair
 	for _, product := range products {
-		pairs = append(pairs, &Pair{product.BaseCurrency, product.QuoteCurrency})
+		gdaxPairs = append(gdaxPairs, &Pair{product.BaseCurrency, product.QuoteCurrency})
 	}
-	return pairs
 }
 
 func (exchange GDAX) GetConfig() *Config {
-	return &Config{Name: "GDAX", Client: gdax.NewClient("", "", "")}
+	return &Config{Name: "GDAX", Client: gdax.NewClient("", "", ""), Pairs: gdaxPairs}
 }

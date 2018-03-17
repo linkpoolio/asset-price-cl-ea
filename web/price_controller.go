@@ -59,6 +59,22 @@ func GetPrice(w rest.ResponseWriter, r *rest.Request) {
 	w.WriteJson(resp)
 }
 
+func SetTradingPairs() {
+	exchanges := exchange.GetSupportedExchanges()
+
+	var wg sync.WaitGroup
+	wg.Add(len(exchanges))
+
+	for _, exc := range exchanges {
+		go func(exc exchange.Exchange) {
+			defer wg.Done()
+			exc.SetPairs()
+		}(exc)
+	}
+
+	wg.Wait()
+}
+
 func getExchangeResponses(base, quote string) ([]*exchange.Response, []*exchange.Error) {
 	exchanges := getExchangesWithPairSupport(base, quote)
 
@@ -94,7 +110,7 @@ func getExchangesWithPairSupport(base, quote string) []exchange.Exchange {
 	for _, exc := range exchanges {
 		go func(exc exchange.Exchange) {
 			defer wg.Done()
-			for _, pair := range exc.GetPairs() {
+			for _, pair := range exc.GetConfig().Pairs {
 				if pair.Base == base && pair.Quote == quote {
 					supported = append(supported, exc)
 					break

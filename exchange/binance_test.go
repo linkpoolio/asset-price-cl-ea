@@ -6,11 +6,12 @@ import (
 	"log"
 )
 
-func TestBinance_GetPairs(t *testing.T) {
+func TestBinance_SetPairs(t *testing.T) {
 	t.Parallel()
 
 	binance := Binance{}
-	pairs := binance.GetPairs()
+	binance.SetPairs()
+	pairs := binance.GetConfig().Pairs
 
 	assert.Contains(t, pairs, &Pair{"LINK", "ETH"})
 	assert.Contains(t, pairs, &Pair{"REQ", "BTC"})
