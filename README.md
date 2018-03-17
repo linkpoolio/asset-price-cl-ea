@@ -19,6 +19,48 @@ go build -o asset-price-cl-ea
 
 Then run the adaptor:
 ```
+export PORT=8080
 ./asset-price-cl-ea
 ```
 
+### Usage
+
+You can call the API with the following URL:
+```
+http://localhost:8080/:base/:quote/
+```
+
+For example:
+```
+curl http://localhost:8080/price/BTC/USD
+```
+Should return something similar to:
+```json
+{
+  "id": "BTC-USD",
+  "price": 7790,
+  "volume": 25334.77576343,
+  "exchanges": [
+    "Bitstamp",
+    "GDAX"
+  ]
+}
+```
+
+Or:
+```
+curl http://localhost:8080/price/LINK/ETH
+```
+```json
+{
+  "id": "LINK-ETH",
+  "price": 0.00067673,
+  "volume": 523251,
+  "exchanges": [
+    "Binance"
+  ]
+}
+```
+
+### Contribution
+We welcome any contributors. The more exchanges supported, the better. Feel free to raise any PR's or issues.
