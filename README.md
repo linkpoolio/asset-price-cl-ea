@@ -23,6 +23,12 @@ export PORT=8080
 ./asset-price-cl-ea
 ```
 
+#### Docker
+To run the container:
+```
+docker run -it -p 8080:8080 linkpoolio/asset-price-cl-ea
+```
+
 ### Usage
 
 You can call the API with the following URL:
