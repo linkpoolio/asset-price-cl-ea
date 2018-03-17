@@ -3,8 +3,7 @@ package exchange
 type Config struct {
 	Name string
 	BaseUrl string
-	SupportedBases []string
-	SupportedQuotes []string
+	Client interface{}
 }
 
 type Error struct {
@@ -19,6 +18,11 @@ type Response struct {
 	Volume float64
 }
 
+type Pair struct {
+	Base string
+	Quote string
+}
+
 type SupportedExchanges struct {
 	exchanges []Exchange
 }
@@ -26,6 +30,7 @@ type SupportedExchanges struct {
 type Exchange interface {
 	GetConfig() *Config
 	GetResponse(base, quote string) (*Response, *Error)
+	GetPairs() []*Pair
 }
 
 func GetSupportedExchanges() []Exchange {

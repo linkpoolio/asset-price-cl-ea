@@ -10,7 +10,8 @@ type GDAX struct {
 }
 
 func (exchange GDAX) GetResponse(base, quote string) (*Response, *Error) {
-	client := gdax.NewClient("", "", "")
+	clientInterface := exchange.GetConfig().Client
+	client := clientInterface.(*gdax.Client)
 
 	ticker, err := client.GetTicker(fmt.Sprintf("%s-%s", base, quote))
 	if err != nil {
@@ -20,6 +21,21 @@ func (exchange GDAX) GetResponse(base, quote string) (*Response, *Error) {
 	return &Response{exchange.GetConfig().Name, ticker.Price,  ticker.Volume}, nil
 }
 
+func (exchange GDAX) GetPairs() []*Pair {
+	clientInterface := exchange.GetConfig().Client
+	client := clientInterface.(*gdax.Client)
+
+	products, err := client.GetProducts()
+	if err != nil {
+		return []*Pair{}
+	}
+	var pairs []*Pair
+	for _, product := range products {
+		pairs = append(pairs, &Pair{product.BaseCurrency, product.QuoteCurrency})
+	}
+	return pairs
+}
+
 func (exchange GDAX) GetConfig() *Config {
-	return &Config{Name: "GDAX", SupportedBases: []string{"BTC", "BCH", "LTC"}, SupportedQuotes: []string{"USD", "EUR"}}
+	return &Config{Name: "GDAX", Client: gdax.NewClient("", "", "")}
 }

@@ -88,19 +88,10 @@ func getExchangeResponses(base, quote string) ([]*exchange.Response, []*exchange
 
 func isSupportedExchange(exc exchange.Exchange, base, quote string) bool {
 	supported := false
-	for _, b := range exc.GetConfig().SupportedBases {
-		if b == base {
+	for _, pair := range exc.GetPairs() {
+		if pair.Base == base && pair.Quote == quote {
 			supported = true
-		}
-	}
-	if !supported {
-		return supported
-	} else {
-		supported = false
-		for _, q := range exc.GetConfig().SupportedQuotes {
-			if q == quote {
-				supported = true
-			}
+			break
 		}
 	}
 	return supported
