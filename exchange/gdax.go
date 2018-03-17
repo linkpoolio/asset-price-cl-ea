@@ -17,7 +17,7 @@ func (exchange GDAX) GetResponse(base, quote string) (*Response, *Error) {
 		return nil, &Error{exchange.GetConfig().Name, "500 ERROR", err.Error()}
 	}
 
-	return &Response{Price: ticker.Price, Volume: ticker.Volume}, nil
+	return &Response{exchange.GetConfig().Name, ticker.Price,  ticker.Volume}, nil
 }
 
 func (exchange GDAX) GetConfig() *Config {

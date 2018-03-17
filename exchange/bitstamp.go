@@ -45,7 +45,7 @@ func (exchange Bitstamp) GetResponse(base, quote string) (*Response, *Error) {
 	if err != nil {
 		return nil, &Error{exchange.GetConfig().Name, resp.Status, err.Error()}
 	}
-	return &Response{Price: currentPrice, Volume: currentVolume}, nil
+	return &Response{exchange.GetConfig().Name, currentPrice, currentVolume}, nil
 }
 
 func (exchange Bitstamp) GetConfig() *Config {

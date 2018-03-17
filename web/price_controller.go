@@ -14,6 +14,13 @@ type Error struct {
 	Errors []*exchange.Error
 }
 
+type Response struct {
+	Id string `json:"id"`
+	Price float64 `json:"price"`
+	Volume float64 `json:"volume"`
+	Exchanges []string `json:"exchanges"`
+}
+
 func GetPrice(w rest.ResponseWriter, r *rest.Request) {
 	base := r.PathParam("base")
 	quote := r.PathParam("quote")
@@ -41,15 +48,15 @@ func GetPrice(w rest.ResponseWriter, r *rest.Request) {
 	}
 
 	// Calculate the weighted average based on volume
-	var totalVolume float64
+	resp := &Response{Id: fmt.Sprintf("%s-%s", base, quote)}
 	for _, response := range responses {
-		totalVolume += response.Volume
+		resp.Exchanges = append(resp.Exchanges, response.Name)
+		resp.Volume += response.Volume
 	}
-	var weightedPrice float64
 	for _, response := range responses {
-		weightedPrice += (response.Volume / totalVolume) * response.Price
+		resp.Price += (response.Volume / resp.Volume) * response.Price
 	}
-	w.WriteJson(&exchange.Response{fmt.Sprintf("%s-%s", base, quote), weightedPrice, totalVolume})
+	w.WriteJson(resp)
 }
 
 func getExchangeResponses(base, quote string) ([]*exchange.Response, []*exchange.Error) {

@@ -14,9 +14,9 @@ type Error struct {
 }
 
 type Response struct {
-	Id string `json:"id"`
-	Price float64 `json:"price"`
-	Volume float64 `json:"volume"`
+	Name string
+	Price float64
+	Volume float64
 }
 
 type SupportedExchanges struct {
