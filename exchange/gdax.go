@@ -21,5 +21,5 @@ func (exchange GDAX) GetResponse(base, quote string) (*Response, *Error) {
 }
 
 func (exchange GDAX) GetConfig() *Config {
-	return &Config{Name: "GDAX"}
+	return &Config{Name: "GDAX", SupportedBases: []string{"BTC", "BCH", "LTC"}, SupportedQuotes: []string{"USD", "EUR"}}
 }

@@ -3,6 +3,8 @@ package exchange
 type Config struct {
 	Name string
 	BaseUrl string
+	SupportedBases []string
+	SupportedQuotes []string
 }
 
 type Error struct {

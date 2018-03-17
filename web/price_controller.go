@@ -29,6 +29,15 @@ func GetPrice(w rest.ResponseWriter, r *rest.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.WriteJson(&errorObj)
 		return
+	} else if len(responses) == 0 {
+		errorObj := &Error{
+			fmt.Sprintf("no exchanges support that trading pair"),
+			http.StatusBadRequest,
+			nil,
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		w.WriteJson(&errorObj)
+		return
 	}
 
 	// Calculate the weighted average based on volume
@@ -55,15 +64,37 @@ func getExchangeResponses(base, quote string) ([]*exchange.Response, []*exchange
 	for _, exc := range supportedExchanges {
 		go func(exc exchange.Exchange) {
 			defer wg.Done()
-			response, err := exc.GetResponse(base, quote)
-			if err != nil {
-				errors = append(errors, err)
+			if isSupportedExchange(exc, base, quote) {
+				response, err := exc.GetResponse(base, quote)
+				if err != nil {
+					errors = append(errors, err)
+				}
+				responses = append(responses, response)
 			}
-			responses = append(responses, response)
 		}(exc)
 	}
 
 	wg.Wait()
 
 	return responses, errors
+}
+
+func isSupportedExchange(exc exchange.Exchange, base, quote string) bool {
+	supported := false
+	for _, b := range exc.GetConfig().SupportedBases {
+		if b == base {
+			supported = true
+		}
+	}
+	if !supported {
+		return supported
+	} else {
+		supported = false
+		for _, q := range exc.GetConfig().SupportedQuotes {
+			if q == quote {
+				supported = true
+			}
+		}
+	}
+	return supported
 }

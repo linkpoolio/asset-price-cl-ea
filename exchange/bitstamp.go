@@ -49,5 +49,9 @@ func (exchange Bitstamp) GetResponse(base, quote string) (*Response, *Error) {
 }
 
 func (exchange Bitstamp) GetConfig() *Config {
-	return &Config{BaseUrl: "https://www.bitstamp.net/api/v2", Name: "Bitstamp"}
+	return &Config{
+		BaseUrl: "https://www.bitstamp.net/api/v2",
+		Name: "Bitstamp",
+		SupportedBases: []string{"BTC", "BCH", "LTC"},
+		SupportedQuotes: []string{"USD", "EUR"}}
 }
