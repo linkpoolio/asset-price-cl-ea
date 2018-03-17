@@ -55,6 +55,16 @@ func TestREQBTC(t *testing.T) {
 	assert.Equal(t, response.Id, "REQ-BTC", "id of trading pair isn't correct")
 }
 
+func TestUnknownPair(t *testing.T) {
+	t.Parallel()
+
+	response := getPairResponse("UNK", "UNK")
+	assert.Equal(t, response.Price, float64(0), "price returned from API is 0")
+	assert.Equal(t, response.Volume, float64(0), "volume returned from API is 0")
+	assert.Equal(t, len(response.Exchanges), 0, "exchanges returned from API was 0")
+	assert.Equal(t, response.Id, "", "id of trading pair isn't correct")
+}
+
 func getPairResponse(base, quote string) *Response {
 	server := httptest.NewServer(Api().MakeHandler())
 	defer server.Close()
