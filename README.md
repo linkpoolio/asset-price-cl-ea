@@ -5,3 +5,4 @@ External Adaptor for Chainlink which aggregates prices of crypto assets from mul
 
 - GDAX
 - Bitstamp
+- Binance

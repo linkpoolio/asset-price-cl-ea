@@ -34,7 +34,7 @@ type Exchange interface {
 }
 
 func GetSupportedExchanges() []Exchange {
-	exchanges := []Exchange{ GDAX{}, Bitstamp{} }
+	exchanges := []Exchange{ GDAX{}, Bitstamp{}, Binance{} }
 	return exchanges
 }
 
