@@ -18,8 +18,6 @@ func TestBitstamp_SetPairs(t *testing.T) {
 }
 
 func TestBitstamp_GetResponse(t *testing.T) {
-	t.Parallel()
-
 	bitstamp := Bitstamp{}
 	price, err := bitstamp.GetResponse("BTC", "USD")
 	if err != nil {

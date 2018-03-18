@@ -12,8 +12,6 @@ import (
 )
 
 func TestBTCUSD(t *testing.T) {
-	t.Parallel()
-
 	response := getPairResponse("BTC", "USD")
 
 	assert.True(t, response.Price > 0, "price returned from API is 0")
@@ -23,8 +21,6 @@ func TestBTCUSD(t *testing.T) {
 }
 
 func TestETHEUR(t *testing.T) {
-	t.Parallel()
-
 	response := getPairResponse("ETH", "EUR")
 
 	assert.True(t, response.Price > 0, "price returned from API is 0")
@@ -34,8 +30,6 @@ func TestETHEUR(t *testing.T) {
 }
 
 func TestLINKETH(t *testing.T) {
-	t.Parallel()
-
 	response := getPairResponse("LINK", "ETH")
 
 	assert.True(t, response.Price > 0, "price returned from API is 0")
@@ -45,8 +39,6 @@ func TestLINKETH(t *testing.T) {
 }
 
 func TestREQBTC(t *testing.T) {
-	t.Parallel()
-
 	response := getPairResponse("REQ", "BTC")
 
 	assert.True(t, response.Price > 0, "price returned from API is 0")
@@ -56,8 +48,6 @@ func TestREQBTC(t *testing.T) {
 }
 
 func TestUnknownPair(t *testing.T) {
-	t.Parallel()
-
 	response := getPairResponse("UNK", "UNK")
 	assert.Equal(t, response.Price, float64(0), "price returned from API is 0")
 	assert.Equal(t, response.Volume, float64(0), "volume returned from API is 0")
