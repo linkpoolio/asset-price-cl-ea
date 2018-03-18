@@ -13,8 +13,7 @@ Make sure [Golang](https://golang.org/pkg/) is installed.
 
 Build:
 ```
-dep ensure -v
-go build -o asset-price-cl-ea
+make build
 ```
 
 Then run the adaptor:
