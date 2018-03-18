@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"log"
+	"time"
 )
 
 type Bitstamp struct {
@@ -33,9 +34,23 @@ func (exchange Bitstamp) GetResponse(base, quote string) (*Response, *Error) {
 	if err != nil {
 		return nil, &Error{exchange.GetConfig().Name, "500 ERROR", "error on forming request to Bitstamp"}
 	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, &Error{exchange.GetConfig().Name, resp.Status, err.Error()}
+	start := time.Now()
+	resp := &http.Response{}
+	for {
+		resp, err = client.Do(req)
+		if err != nil {
+			return nil, &Error{exchange.GetConfig().Name, resp.Status, err.Error()}
+		}
+		if resp.StatusCode == 200 {
+			break
+		} else if time.Now().Sub(start) >= time.Millisecond * 500 {
+			return nil, &Error{
+				exchange.GetConfig().Name,
+				resp.Status,
+				"timed out on getting a valid response from Bitstamp"}
+		} else {
+			time.Sleep(time.Millisecond * 20)
+		}
 	}
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -64,9 +79,21 @@ func (exchange Bitstamp) SetPairs() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal(err)
+
+	start := time.Now()
+	resp := &http.Response{}
+	for {
+		resp, err = client.Do(req)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if resp.StatusCode == 200 {
+			break
+		} else if time.Now().Sub(start) >= time.Millisecond * 500 {
+			log.Fatal("timed out on getting a valid response from Bitstamp")
+		} else {
+			time.Sleep(time.Millisecond * 20)
+		}
 	}
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
