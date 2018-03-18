@@ -21,7 +21,7 @@ type Response struct {
 	Exchanges []string `json:"exchanges"`
 }
 
-func GetPrice(w rest.ResponseWriter, r *rest.Request) {
+func GetResponse(w rest.ResponseWriter, r *rest.Request) {
 	base := r.PathParam("base")
 	quote := r.PathParam("quote")
 
@@ -87,7 +87,7 @@ func getExchangeResponses(base, quote string) ([]*exchange.Response, []*exchange
 	for _, exc := range exchanges {
 		go func(exc exchange.Exchange) {
 			defer wg.Done()
-			response, err := exc.GetPrice(base, quote)
+			response, err := exc.GetResponse(base, quote)
 			if err != nil {
 				errors = append(errors, err)
 			}

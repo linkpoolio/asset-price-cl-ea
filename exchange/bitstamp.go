@@ -26,7 +26,7 @@ type BitstampPair struct {
 
 var bitstampPairs []*Pair
 
-func (exchange Bitstamp) GetPrice(base, quote string) (*Response, *Error) {
+func (exchange Bitstamp) GetResponse(base, quote string) (*Response, *Error) {
 	client := &http.Client{}
 	req, err := http.NewRequest(
 		"GET", fmt.Sprintf("%s/ticker/%s%s", exchange.GetConfig().BaseUrl, base, quote), nil)

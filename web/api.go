@@ -13,7 +13,7 @@ func Api() *rest.Api{
 	api := rest.NewApi()
 	api.Use(rest.DefaultDevStack...)
 	router, err := rest.MakeRouter(
-		rest.Get("/price/:base/:quote", GetPrice),
+		rest.Get("/price/:base/:quote", GetResponse),
 	)
 	if err != nil {
 		log.Fatal(err)

@@ -17,11 +17,11 @@ func TestGDAX_SetPairs(t *testing.T) {
 	assert.Contains(t, pairs, &Pair{"ETH", "EUR"})
 }
 
-func TestGDAX_GetPrice(t *testing.T) {
+func TestGDAX_GetResponse(t *testing.T) {
 	t.Parallel()
 
 	gdax := GDAX{}
-	price, err := gdax.GetPrice("BTC", "USD")
+	price, err := gdax.GetResponse("BTC", "USD")
 	if err != nil {
 		log.Fatal(err)
 	}

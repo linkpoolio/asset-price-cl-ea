@@ -17,11 +17,11 @@ func TestBinance_SetPairs(t *testing.T) {
 	assert.Contains(t, pairs, &Pair{"REQ", "BTC"})
 }
 
-func TestBinance_GetPrice(t *testing.T) {
+func TestBinance_GetResponse(t *testing.T) {
 	t.Parallel()
 
 	binance := Binance{}
-	price, err := binance.GetPrice("LINK", "ETH")
+	price, err := binance.GetResponse("LINK", "ETH")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -12,7 +12,7 @@ type GDAX struct {
 
 var gdaxPairs []*Pair
 
-func (exchange GDAX) GetPrice(base, quote string) (*Response, *Error) {
+func (exchange GDAX) GetResponse(base, quote string) (*Response, *Error) {
 	clientInterface := exchange.GetConfig().Client
 	client := clientInterface.(*gdax.Client)
 

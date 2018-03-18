@@ -30,7 +30,7 @@ type SupportedExchanges struct {
 
 type Exchange interface {
 	GetConfig() *Config
-	GetPrice(base, quote string) (*Response, *Error)
+	GetResponse(base, quote string) (*Response, *Error)
 	SetPairs()
 }
 

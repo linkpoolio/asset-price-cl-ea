@@ -17,11 +17,11 @@ func TestBitstamp_SetPairs(t *testing.T) {
 	assert.Contains(t, pairs, &Pair{"ETH", "EUR"})
 }
 
-func TestBitstamp_GetPrice(t *testing.T) {
+func TestBitstamp_GetResponse(t *testing.T) {
 	t.Parallel()
 
 	bitstamp := Bitstamp{}
-	price, err := bitstamp.GetPrice("BTC", "USD")
+	price, err := bitstamp.GetResponse("BTC", "USD")
 	if err != nil {
 		log.Fatal(err)
 	}
