@@ -91,14 +91,14 @@ curl -u <username>:<password> -X POST -H 'Content-Type: application/json' -d '{"
 
 **Create Spec**
 ```
-curl -u chainlink:twochains -X POST -H 'Content-Type: application/json' -d '{"initiators":[{"type":"web"}],"tasks":[{"type":"asset-price"},{"type":"noop"}]}' http://localhost:6688/v2/specs
+curl -u <username>:<password> -X POST -H 'Content-Type: application/json' -d '{"initiators":[{"type":"web"}],"tasks":[{"type":"asset-price"},{"type":"noop"}]}' http://localhost:6688/v2/specs
 ```
 
 **New Spec Run**
 
 Notice the parameters `base` and `quote`. These are passed into the external adaptor by the node.
 ```
-curl -u chainlink:twochains -X POST -H 'Content-Type: application/json' -d '{"base": "BTC", "quote": "USD"}' http://localhost:6688
+curl -u <username>:<password> -X POST -H 'Content-Type: application/json' -d '{"base": "BTC", "quote": "USD"}' http://localhost:6688
 /v2/specs/<specId>/runs
 ```
 
