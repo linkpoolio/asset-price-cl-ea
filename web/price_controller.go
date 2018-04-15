@@ -6,57 +6,53 @@ import (
 	"fmt"
 	"sync"
 	"net/http"
+	"io/ioutil"
+	"encoding/json"
+	"gopkg.in/guregu/null.v3"
 )
 
-type Error struct {
-	Error string
-	StatusCode int
-	Errors []*exchange.Error
-}
-
-type Response struct {
-	Id string `json:"id"`
-	Price float64 `json:"price"`
-	Volume float64 `json:"volume"`
-	Exchanges []string `json:"exchanges"`
-}
-
 func GetResponse(w rest.ResponseWriter, r *rest.Request) {
-	base := r.PathParam("base")
-	quote := r.PathParam("quote")
+	bytes, _ := ioutil.ReadAll(r.Body)
+
+	// Unmarshal to CL's RunResult type
+	var runResult RunResult
+	err := json.Unmarshal(bytes, &runResult)
+	if err != nil {
+		writeErrorResult(w, http.StatusInternalServerError, &runResult, err)
+		return
+	}
 
 	// Call the exchanges concurrently
-	responses, errors := getExchangeResponses(base, quote)
+	responses, errors := getExchangeResponses(runResult.Params.Base, runResult.Params.Quote)
 	if len(errors) > 0 {
-		errorObj := &Error{
-			fmt.Sprintf("errors given when getting prices from exchanges"),
+		writeErrorResult(
+			w,
 			http.StatusInternalServerError,
-			errors,
-		}
-		w.WriteHeader(http.StatusInternalServerError)
-		w.WriteJson(&errorObj)
+			&runResult,
+			fmt.Errorf("errors given when getting prices from exchanges"))
 		return
 	} else if len(responses) == 0 {
-		errorObj := &Error{
-			fmt.Sprintf("no exchanges support that trading pair"),
+		writeErrorResult(
+			w,
 			http.StatusBadRequest,
-			nil,
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		w.WriteJson(&errorObj)
+			&runResult,
+			fmt.Errorf("no exchanges support that trading pair"))
 		return
 	}
 
 	// Calculate the weighted average based on volume
-	resp := &Response{Id: fmt.Sprintf("%s-%s", base, quote)}
+	output := Output{Id: fmt.Sprintf("%s-%s", runResult.Params.Base, runResult.Params.Quote)}
 	for _, response := range responses {
-		resp.Exchanges = append(resp.Exchanges, response.Name)
-		resp.Volume += response.Volume
+		output.Exchanges = append(output.Exchanges, response.Name)
+		output.Volume += response.Volume
 	}
 	for _, response := range responses {
-		resp.Price += (response.Volume / resp.Volume) * response.Price
+		output.Price += (response.Volume / output.Volume) * response.Price
 	}
-	w.WriteJson(resp)
+	params := Params{ runResult.Params.Input, output }
+	runResult.Params = params
+
+	w.WriteJson(runResult)
 }
 
 func SetTradingPairs() {
@@ -73,6 +69,18 @@ func SetTradingPairs() {
 	}
 
 	wg.Wait()
+}
+
+func writeErrorResult(w rest.ResponseWriter, statusCode int, rr *RunResult, err error) {
+	errorMessage := null.String{}
+	errorMessage.String = err.Error()
+	errorMessage.Valid = true
+
+	rr.Pending = false
+	rr.ErrorMessage = errorMessage
+
+	w.WriteHeader(statusCode)
+	w.WriteJson(rr)
 }
 
 func getExchangeResponses(base, quote string) ([]*exchange.Response, []*exchange.Error) {
