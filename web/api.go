@@ -17,8 +17,8 @@ type Input struct {
 
 type Output struct {
 	Id        string   `json:"id"`
-	Price     float64  `json:"price"`
-	Volume    float64  `json:"volume"`
+	Price     string   `json:"price"`
+	Volume    string   `json:"volume"`
 	Exchanges []string `json:"exchanges"`
 }
 

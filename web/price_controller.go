@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"gopkg.in/guregu/null.v3"
+	"strconv"
 )
 
 func GetResponse(w rest.ResponseWriter, r *rest.Request) {
@@ -41,14 +42,19 @@ func GetResponse(w rest.ResponseWriter, r *rest.Request) {
 	}
 
 	// Calculate the weighted average based on volume
+	var price float64
+	var volume float64
+
 	output := Output{Id: fmt.Sprintf("%s-%s", runResult.Params.Base, runResult.Params.Quote)}
 	for _, response := range responses {
 		output.Exchanges = append(output.Exchanges, response.Name)
-		output.Volume += response.Volume
+		volume += response.Volume
 	}
 	for _, response := range responses {
-		output.Price += (response.Volume / output.Volume) * response.Price
+		price += (response.Volume / volume) * response.Price
 	}
+	output.Price = strconv.FormatFloat(price, 'f', -1, 64)
+	output.Volume = strconv.FormatFloat(volume, 'f', -1, 64)
 	params := Params{ runResult.Params.Input, output }
 	runResult.Params = params
 
