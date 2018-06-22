@@ -3,7 +3,7 @@ External Adaptor for Chainlink which aggregates prices of crypto assets from mul
 
 ### Currently Supported Exchanges:
 
-- GDAX
+- Coinbase Pro
 - Bitstamp
 - Binance
 
