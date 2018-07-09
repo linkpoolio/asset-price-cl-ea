@@ -10,12 +10,13 @@ import (
 
 var (
 	exchanges = []Exchange{
-		&GDAX{},
-		&Bitstamp{},
 		&Binance{},
+		&Bitfinex{},
+		//&Bitstamp{}, (Extreme rate limit)
+		&Bittrex{},
+		&GDAX{},
 		&Huobi{},
 		&HitBtc{},
-		&Bitfinex{},
 		&ZB{} }
 )
 
