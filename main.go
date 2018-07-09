@@ -1,19 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"github.com/linkpoolio/asset-price-cl-ea/web"
 	"log"
 	"net/http"
-	"os"
-	"fmt"
 )
 
 func main() {
-	port := ""
-	if os.Getenv("PORT") != "" {
-		port = os.Getenv("PORT")
-	} else {
-		port = "8080"
-	}
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), web.Api().MakeHandler()))
+	web.InitialiseConfig()
+
+	log.Print("Chainlink Asset Price Adaptor")
+	log.Printf("Starting to serve on port %d", web.Config.Port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", web.Config.Port), web.Api().MakeHandler()))
 }

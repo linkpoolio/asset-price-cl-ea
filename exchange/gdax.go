@@ -8,24 +8,23 @@ import (
 
 type GDAX struct {
 	Exchange
+	Pairs []*Pair
 }
 
-var gdaxPairs []*Pair
-
-func (exchange *GDAX) GetResponse(base, quote string) (*Response, *Error) {
-	clientInterface := exchange.GetConfig().Client
+func (exc *GDAX) GetResponse(base, quote string) (*Response, *Error) {
+	clientInterface := exc.GetConfig().Client
 	client := clientInterface.(*gdax.Client)
 
 	ticker, err := client.GetTicker(fmt.Sprintf("%s-%s", base, quote))
 	if err != nil {
-		return nil, &Error{exchange.GetConfig().Name, "500 ERROR", err.Error()}
+		return nil, &Error{exc.GetConfig().Name, "500 ERROR", err.Error()}
 	}
 
-	return &Response{exchange.GetConfig().Name, ticker.Price,  ticker.Volume * ticker.Price}, nil
+	return &Response{exc.GetConfig().Name, ticker.Price,  ticker.Volume * ticker.Price}, nil
 }
 
-func (exchange *GDAX) SetPairs() {
-	clientInterface := exchange.GetConfig().Client
+func (exc *GDAX) SetPairs() {
+	clientInterface := exc.GetConfig().Client
 	client := clientInterface.(*gdax.Client)
 
 	products, err := client.GetProducts()
@@ -33,10 +32,10 @@ func (exchange *GDAX) SetPairs() {
 		log.Fatal(err)
 	}
 	for _, product := range products {
-		gdaxPairs = append(gdaxPairs, &Pair{product.BaseCurrency, product.QuoteCurrency})
+		exc.Pairs = append(exc.Pairs, &Pair{product.BaseCurrency, product.QuoteCurrency})
 	}
 }
 
-func (exchange *GDAX) GetConfig() *Config {
-	return &Config{Name: "GDAX", Client: gdax.NewClient("", "", ""), Pairs: gdaxPairs}
+func (exc *GDAX) GetConfig() *Config {
+	return &Config{Name: "GDAX", Client: gdax.NewClient("", "", ""), Pairs: exc.Pairs}
 }

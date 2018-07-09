@@ -13,4 +13,4 @@ RUN apk add --no-cache ca-certificates
 COPY --from=builder /go/src/github.com/linkpoolio/asset-price-cl-ea/asset-price-cl-ea /usr/local/bin/
 
 EXPOSE 8080
-ENTRYPOINT ["asset-price-cl-ea"]
+CMD ["asset-price-cl-ea"]

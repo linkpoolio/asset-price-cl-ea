@@ -8,6 +8,7 @@ import (
 
 type Huobi struct {
 	Exchange
+	Pairs []*Pair
 }
 
 type HuobiPair struct {
@@ -28,11 +29,9 @@ type HuobiMarket struct {
 	Ticker HuobiTicker `json:"tick"`
 }
 
-var huobiPairs []*Pair
-
-func (exchange *Huobi) GetResponse(base, quote string) (*Response, *Error) {
+func (exc *Huobi) GetResponse(base, quote string) (*Response, *Error) {
 	var market HuobiMarket
-	config := exchange.GetConfig()
+	config := exc.GetConfig()
 	err := HttpGet(
 		config,
 		fmt.Sprintf(
@@ -46,22 +45,22 @@ func (exchange *Huobi) GetResponse(base, quote string) (*Response, *Error) {
 	return &Response{config.Name, market.Ticker.Close, market.Ticker.Volume}, nil
 }
 
-func (exchange *Huobi) SetPairs() {
+func (exc *Huobi) SetPairs() {
 	var pairs HuobiPairs
-	config := exchange.GetConfig()
+	config := exc.GetConfig()
 	err := HttpGet(config, "/v1/common/symbols", &pairs)
 	if err != nil {
 		log.Fatal(err)
 	}
 	for _, pair := range pairs.Data {
-		huobiPairs = append(huobiPairs, &Pair{Base: strings.ToUpper(pair.Base), Quote: strings.ToUpper(pair.Quote)})
+		exc.Pairs = append(exc.Pairs, &Pair{Base: strings.ToUpper(pair.Base), Quote: strings.ToUpper(pair.Quote)})
 	}
 }
 
-func (exchange *Huobi) GetConfig() *Config {
+func (exc *Huobi) GetConfig() *Config {
 	return &Config{
 		Name: "Huobi",
 		BaseUrl: "https://api.huobi.pro",
 		Client: nil,
-		Pairs: huobiPairs}
+		Pairs: exc.Pairs}
 }

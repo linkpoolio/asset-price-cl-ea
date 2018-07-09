@@ -8,6 +8,17 @@ import (
 	"strconv"
 )
 
+var (
+	exchanges = []Exchange{
+		&GDAX{},
+		&Bitstamp{},
+		&Binance{},
+		&Huobi{},
+		&HitBtc{},
+		&Bitfinex{},
+		&ZB{} }
+)
+
 type Config struct {
 	Name string
 	BaseUrl string
@@ -32,25 +43,14 @@ type Pair struct {
 	Quote string
 }
 
-type SupportedExchanges struct {
-	exchanges []Exchange
-}
-
 type Exchange interface {
 	GetConfig() *Config
+	GetPairs() []*Pair
 	GetResponse(base, quote string) (*Response, *Error)
 	SetPairs()
 }
 
 func GetSupportedExchanges() []Exchange {
-	exchanges := []Exchange{
-		&GDAX{},
-		&Bitstamp{},
-		&Binance{},
-		&Huobi{},
-		&HitBtc{},
-		&Bitfinex{},
-		&ZB{} }
 	return exchanges
 }
 

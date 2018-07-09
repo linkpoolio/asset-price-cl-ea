@@ -11,7 +11,39 @@ import (
 	"gopkg.in/guregu/null.v3"
 	"strconv"
 	"strings"
+	"time"
+	"log"
 )
+
+type Log struct {
+	Message string
+}
+
+type Input struct {
+	Base  string `json:"base"`
+	Quote string `json:"quote"`
+}
+
+type Output struct {
+	Id        string   		    `json:"id"`
+	Price     string   		    `json:"price"`
+	Volume    string   		    `json:"volume"`
+	Exchanges []string 		    `json:"exchanges"`
+	Errors	  []*exchange.Error `json:"errors"`
+}
+
+type Params struct {
+	Input
+	Output
+}
+
+type RunResult struct {
+	JobRunID     string        `json:"jobRunId"`
+	Params       Params        `json:"data"`
+	Status       string        `json:"status"`
+	ErrorMessage null.String   `json:"error"`
+	Pending      bool          `json:"pending"`
+}
 
 func GetResponse(w rest.ResponseWriter, r *rest.Request) {
 	bytes, _ := ioutil.ReadAll(r.Body)
@@ -60,20 +92,16 @@ func GetResponse(w rest.ResponseWriter, r *rest.Request) {
 	w.WriteJson(runResult)
 }
 
-func SetTradingPairs() {
-	exchanges := exchange.GetSupportedExchanges()
+func StartPairsTicker() {
+	setExchangePairs()
 
-	var wg sync.WaitGroup
-	wg.Add(len(exchanges))
-
-	for _, exc := range exchanges {
-		go func(exc exchange.Exchange) {
-			defer wg.Done()
-			exc.SetPairs()
-		}(exc)
-	}
-
-	wg.Wait()
+	ticker := time.NewTicker(Config.TickerInterval)
+	go func() {
+		for range ticker.C {
+			setExchangePairs()
+			log.Print("Trading pairs for all exchanges refreshed")
+		}
+	}()
 }
 
 func writeErrorResult(w rest.ResponseWriter, statusCode int, rr *RunResult, err error) {
@@ -97,14 +125,17 @@ func getExchangeResponses(base, quote string) ([]*exchange.Response, []*exchange
 	var responses []*exchange.Response
 	var errors []*exchange.Error
 
+	mutex := sync.Mutex{}
 	for _, exc := range exchanges {
 		go func(exc exchange.Exchange) {
 			defer wg.Done()
 			response, err := exc.GetResponse(base, quote)
+			mutex.Lock()
 			if err != nil {
 				errors = append(errors, err)
 			}
 			responses = append(responses, response)
+			mutex.Unlock()
 		}(exc)
 	}
 
@@ -119,13 +150,16 @@ func getExchangesWithPairSupport(base, quote string) []exchange.Exchange {
 	var wg sync.WaitGroup
 	wg.Add(len(exchanges))
 
+	mutex := sync.Mutex{}
 	var supported []exchange.Exchange
 	for _, exc := range exchanges {
 		go func(exc exchange.Exchange) {
 			defer wg.Done()
 			for _, pair := range exc.GetConfig().Pairs {
 				if pair.Base == base && pair.Quote == quote {
+					mutex.Lock()
 					supported = append(supported, exc)
+					mutex.Unlock()
 					break
 				}
 			}
@@ -135,4 +169,20 @@ func getExchangesWithPairSupport(base, quote string) []exchange.Exchange {
 	wg.Wait()
 
 	return supported
+}
+
+func setExchangePairs() {
+	var wg sync.WaitGroup
+
+	exchanges := exchange.GetSupportedExchanges()
+	wg.Add(len(exchanges))
+
+	for _, exc := range exchanges {
+		go func(exc exchange.Exchange) {
+			defer wg.Done()
+			exc.SetPairs()
+		}(exc)
+	}
+
+	wg.Wait()
 }
