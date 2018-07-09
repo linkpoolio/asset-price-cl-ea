@@ -12,6 +12,10 @@ import (
 	"bytes"
 )
 
+func init(){
+	InitialiseConfig()
+}
+
 func TestBTCUSD(t *testing.T) {
 	response := getPairResponse("BTC", "USD")
 
