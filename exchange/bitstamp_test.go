@@ -7,8 +7,6 @@ import (
 )
 
 func TestBitstamp_SetPairs(t *testing.T) {
-	t.Parallel()
-
 	bitstamp := Bitstamp{}
 	bitstamp.SetPairs()
 	pairs := bitstamp.GetConfig().Pairs

@@ -2,13 +2,8 @@ package exchange
 
 import (
 	"fmt"
-	"net/http"
-	"io/ioutil"
-	"encoding/json"
-	"strconv"
 	"strings"
 	"log"
-	"time"
 )
 
 type Bitstamp struct {
@@ -27,85 +22,25 @@ type BitstampPair struct {
 
 var bitstampPairs []*Pair
 
-func (exchange Bitstamp) GetResponse(base, quote string) (*Response, *Error) {
-	client := &http.Client{}
-	req, err := http.NewRequest(
-		"GET", fmt.Sprintf("%s/ticker/%s%s", exchange.GetConfig().BaseUrl, base, quote), nil)
-	if err != nil {
-		return nil, &Error{exchange.GetConfig().Name, "500 ERROR", "error on forming request to Bitstamp"}
+func (exchange *Bitstamp) GetResponse(base, quote string) (*Response, *Error) {
+	var bst BitstampModel
+	config := exchange.GetConfig()
+	excErr := HttpGet(config, fmt.Sprintf("/ticker/%s%s", base, quote), &bst)
+	if excErr != nil {
+		return nil, excErr
 	}
-	start := time.Now()
-	resp := &http.Response{}
-	for {
-		resp, err = client.Do(req)
-		if err != nil {
-			return nil, &Error{exchange.GetConfig().Name, resp.Status, err.Error()}
-		}
-		if resp.StatusCode == 200 {
-			break
-		} else if time.Now().Sub(start) >= time.Millisecond * 500 {
-			return nil, &Error{
-				exchange.GetConfig().Name,
-				resp.Status,
-				"timed out on getting a valid response from Bitstamp"}
-		} else {
-			time.Sleep(time.Millisecond * 20)
-		}
-	}
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, &Error{exchange.GetConfig().Name, resp.Status, err.Error()}
-	}
-	bitstampModel := &BitstampModel{}
-	err = json.Unmarshal(bodyBytes, bitstampModel)
-	if err != nil {
-		return nil, &Error{exchange.GetConfig().Name, resp.Status, err.Error()}
-	}
-	currentPrice, err := strconv.ParseFloat(bitstampModel.Last, 64)
-	if err != nil {
-		return nil, &Error{exchange.GetConfig().Name, resp.Status, err.Error()}
-	}
-	currentVolume, err := strconv.ParseFloat(bitstampModel.Volume, 64)
-	if err != nil {
-		return nil, &Error{exchange.GetConfig().Name, resp.Status, err.Error()}
-	}
-	return &Response{exchange.GetConfig().Name, currentPrice, currentVolume}, nil
+	volume := ToFloat64(bst.Volume) * ToFloat64(bst.Last)
+	return &Response{exchange.GetConfig().Name, ToFloat64(bst.Last), volume}, nil
 }
 
-func (exchange Bitstamp) SetPairs() {
-	client := &http.Client{}
-	req, err := http.NewRequest(
-		"GET", fmt.Sprintf("%s/trading-pairs-info/", exchange.GetConfig().BaseUrl), nil)
+func (exchange *Bitstamp) SetPairs() {
+	var pairs []BitstampPair
+	config := exchange.GetConfig()
+	err := HttpGet(config, "/trading-pairs-info/", &pairs)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	start := time.Now()
-	resp := &http.Response{}
-	for {
-		resp, err = client.Do(req)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if resp.StatusCode == 200 {
-			break
-		} else if time.Now().Sub(start) >= time.Millisecond * 500 {
-			log.Fatal("timed out on getting a valid response from Bitstamp")
-		} else {
-			time.Sleep(time.Millisecond * 20)
-		}
-	}
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	var bPairs []BitstampPair
-	err = json.Unmarshal(bodyBytes, &bPairs)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, pair := range bPairs {
+	for _, pair := range pairs {
 		if pair.Trading == "Enabled" {
 			currencies := strings.Split(pair.Name, "/")
 			bitstampPairs = append(bitstampPairs, &Pair{currencies[0], currencies[1]})
@@ -113,6 +48,6 @@ func (exchange Bitstamp) SetPairs() {
 	}
 }
 
-func (exchange Bitstamp) GetConfig() *Config {
+func (exchange *Bitstamp) GetConfig() *Config {
 	return &Config{BaseUrl: "https://bitstamp.net/api/v2", Name: "Bitstamp", Pairs: bitstampPairs}
 }

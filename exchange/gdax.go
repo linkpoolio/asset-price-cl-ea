@@ -12,7 +12,7 @@ type GDAX struct {
 
 var gdaxPairs []*Pair
 
-func (exchange GDAX) GetResponse(base, quote string) (*Response, *Error) {
+func (exchange *GDAX) GetResponse(base, quote string) (*Response, *Error) {
 	clientInterface := exchange.GetConfig().Client
 	client := clientInterface.(*gdax.Client)
 
@@ -21,10 +21,10 @@ func (exchange GDAX) GetResponse(base, quote string) (*Response, *Error) {
 		return nil, &Error{exchange.GetConfig().Name, "500 ERROR", err.Error()}
 	}
 
-	return &Response{exchange.GetConfig().Name, ticker.Price,  ticker.Volume}, nil
+	return &Response{exchange.GetConfig().Name, ticker.Price,  ticker.Volume * ticker.Price}, nil
 }
 
-func (exchange GDAX) SetPairs() {
+func (exchange *GDAX) SetPairs() {
 	clientInterface := exchange.GetConfig().Client
 	client := clientInterface.(*gdax.Client)
 
@@ -37,6 +37,6 @@ func (exchange GDAX) SetPairs() {
 	}
 }
 
-func (exchange GDAX) GetConfig() *Config {
+func (exchange *GDAX) GetConfig() *Config {
 	return &Config{Name: "GDAX", Client: gdax.NewClient("", "", ""), Pairs: gdaxPairs}
 }

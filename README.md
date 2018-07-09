@@ -3,9 +3,13 @@ External Adaptor for Chainlink which aggregates prices of crypto assets from mul
 
 ### Currently Supported Exchanges:
 
-- GDAX
-- Bitstamp
 - Binance
+- Bitfinex
+- Bitstamp
+- GDAX
+- HitBTC
+- Huobi Pro
+- ZB
 
 ### Setup Instructions
 #### Local Install
@@ -25,7 +29,7 @@ export PORT=8080
 #### Docker
 To run the container:
 ```
-docker run -it -p 8080:8080 linkpoolio/asset-price-cl-ea
+docker run -it -p 8080:8080 -e PORT=8080 linkpoolio/asset-price-cl-ea
 ```
 
 ### Usage
@@ -39,21 +43,24 @@ curl -X POST -H 'Content-Type: application/json' -d '{ "jobRunId": "1234", "data
 Should return something similar to:
 ```json
 {
-  "jobRunId": "1234",
-  "data": {
-    "base": "BTC",
-    "quote": "USD",
-    "id": "BTC-USD",
-    "price": 8298.837991560862,
-    "volume": 16594.58795541,
-    "exchanges": [
-      "GDAX",
-      "Bitstamp"
-    ]
-  },
-  "status": "",
-  "error": null,
-  "pending": false
+    "jobRunId": "1234",
+    "data": {
+        "base": "BTC",
+        "quote": "USD",
+        "id": "BTC-USD",
+        "price": "6754.1794331023375",
+        "volume": "195359536.70301655",
+        "exchanges": [
+            "GDAX",
+            "Bitfinex",
+            "HitBTC",
+            "Bitstamp"
+        ],
+        "errors": null
+    },
+    "status": "",
+    "error": null,
+    "pending": false
 }
 ```
 
@@ -63,20 +70,22 @@ curl -X POST -H 'Content-Type: application/json' -d '{ "jobRunId": "1234", "data
 ```
 ```json
 {
-  "jobRunId": "1234",
-  "data": {
-    "base": "LINK",
-    "quote": "ETH",
-    "id": "LINK-ETH",
-    "price": 0.00079999,
-    "volume": 440625,
-    "exchanges": [
-      "Binance"
-    ]
-  },
-  "status": "",
-  "error": null,
-  "pending": false
+    "jobRunId": "1234",
+    "data": {
+        "base": "LINK",
+        "quote": "ETH",
+        "id": "LINK-ETH",
+        "price": "0.0004981579292115922",
+        "volume": "226.8355475505",
+        "exchanges": [
+            "Huobi",
+            "Binance"
+        ],
+        "errors": null
+    },
+    "status": "",
+    "error": null,
+    "pending": false
 }
 ```
 
@@ -98,8 +107,7 @@ curl -u <username>:<password> -X POST -H 'Content-Type: application/json' -d '{"
 
 Notice the parameters `base` and `quote`. These are passed into the external adaptor by the node.
 ```
-curl -u <username>:<password> -X POST -H 'Content-Type: application/json' -d '{"base": "BTC", "quote": "USD"}' http://localhost:6688
-/v2/specs/<specId>/runs
+curl -u <username>:<password> -X POST -H 'Content-Type: application/json' -d '{"base": "BTC", "quote": "USD"}' http://localhost:6688/v2/specs/<specId>/runs
 ```
 
 ### Contribution

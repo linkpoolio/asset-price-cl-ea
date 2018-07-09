@@ -10,12 +10,12 @@ import (
 	"encoding/json"
 	"gopkg.in/guregu/null.v3"
 	"strconv"
+	"strings"
 )
 
 func GetResponse(w rest.ResponseWriter, r *rest.Request) {
 	bytes, _ := ioutil.ReadAll(r.Body)
 
-	// Unmarshal to CL's RunResult type
 	var runResult RunResult
 	err := json.Unmarshal(bytes, &runResult)
 	if err != nil {
@@ -23,15 +23,12 @@ func GetResponse(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
-	// Call the exchanges concurrently
-	responses, errors := getExchangeResponses(runResult.Params.Base, runResult.Params.Quote)
+	output := Output{Id: fmt.Sprintf("%s-%s", runResult.Params.Base, runResult.Params.Quote)}
+	responses, errors := getExchangeResponses(
+		strings.ToUpper(runResult.Params.Base),
+		strings.ToUpper(runResult.Params.Quote))
 	if len(errors) > 0 {
-		writeErrorResult(
-			w,
-			http.StatusInternalServerError,
-			&runResult,
-			fmt.Errorf("errors given when getting prices from exchanges"))
-		return
+		output.Errors = append(runResult.Params.Errors, errors...)
 	} else if len(responses) == 0 {
 		writeErrorResult(
 			w,
@@ -41,17 +38,19 @@ func GetResponse(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
-	// Calculate the weighted average based on volume
 	var price float64
 	var volume float64
 
-	output := Output{Id: fmt.Sprintf("%s-%s", runResult.Params.Base, runResult.Params.Quote)}
 	for _, response := range responses {
-		output.Exchanges = append(output.Exchanges, response.Name)
-		volume += response.Volume
+		if response != nil {
+			output.Exchanges = append(output.Exchanges, response.Name)
+			volume += response.Volume
+		}
 	}
 	for _, response := range responses {
-		price += (response.Volume / volume) * response.Price
+		if response != nil {
+			price += (response.Volume / volume) * response.Price
+		}
 	}
 	output.Price = strconv.FormatFloat(price, 'f', -1, 64)
 	output.Volume = strconv.FormatFloat(volume, 'f', -1, 64)

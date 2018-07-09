@@ -7,8 +7,6 @@ import (
 )
 
 func TestGDAX_SetPairs(t *testing.T) {
-	t.Parallel()
-
 	gdax := GDAX{}
 	gdax.SetPairs()
 	pairs := gdax.GetConfig().Pairs
@@ -18,8 +16,6 @@ func TestGDAX_SetPairs(t *testing.T) {
 }
 
 func TestGDAX_GetResponse(t *testing.T) {
-	t.Parallel()
-
 	gdax := GDAX{}
 	price, err := gdax.GetResponse("BTC", "USD")
 	if err != nil {

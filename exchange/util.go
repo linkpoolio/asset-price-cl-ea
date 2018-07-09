@@ -1,5 +1,13 @@
 package exchange
 
+import (
+	"net/http"
+	"fmt"
+	"io/ioutil"
+	"encoding/json"
+	"strconv"
+)
+
 type Config struct {
 	Name string
 	BaseUrl string
@@ -35,7 +43,54 @@ type Exchange interface {
 }
 
 func GetSupportedExchanges() []Exchange {
-	exchanges := []Exchange{ GDAX{}, Bitstamp{}, Binance{} }
+	exchanges := []Exchange{
+		&GDAX{},
+		&Bitstamp{},
+		&Binance{},
+		&Huobi{},
+		&HitBtc{},
+		&Bitfinex{},
+		&ZB{} }
 	return exchanges
 }
 
+func HttpGet(config *Config, url string, excModel interface{}) *Error {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", config.BaseUrl, url), nil)
+	if err != nil {
+		return &Error{
+			Exchange: config.Name,
+			Status: "500 ERROR",
+			Message: fmt.Sprintf("error on forming request to %s", config.Name)}
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return &Error{Exchange: config.Name, Status: resp.Status, Message: err.Error()}
+	}
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return &Error{Exchange: config.Name, Status: resp.Status, Message: err.Error()}
+	}
+	err = json.Unmarshal(bodyBytes, excModel)
+	if err != nil {
+		return &Error{Exchange: config.Name, Status: resp.Status, Message: err.Error()}
+	}
+	return nil
+}
+
+func ToFloat64(v interface{}) float64 {
+	if v == nil {
+		return 0.0
+	}
+
+	switch v.(type) {
+	case float64:
+		return v.(float64)
+	case string:
+		vStr := v.(string)
+		vF, _ := strconv.ParseFloat(vStr, 64)
+		return vF
+	default:
+		panic("to float64 error.")
+	}
+}

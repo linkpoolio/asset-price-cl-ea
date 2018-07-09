@@ -7,8 +7,6 @@ import (
 )
 
 func TestBinance_SetPairs(t *testing.T) {
-	t.Parallel()
-
 	binance := Binance{}
 	binance.SetPairs()
 	pairs := binance.GetConfig().Pairs
@@ -18,8 +16,6 @@ func TestBinance_SetPairs(t *testing.T) {
 }
 
 func TestBinance_GetResponse(t *testing.T) {
-	t.Parallel()
-
 	binance := Binance{}
 	price, err := binance.GetResponse("LINK", "ETH")
 	if err != nil {

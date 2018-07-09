@@ -4,6 +4,7 @@ import (
 	"github.com/ant0ine/go-json-rest/rest"
 	"log"
 	"gopkg.in/guregu/null.v3"
+	"github.com/linkpoolio/asset-price-cl-ea/exchange"
 )
 
 type Log struct {
@@ -16,10 +17,11 @@ type Input struct {
 }
 
 type Output struct {
-	Id        string   `json:"id"`
-	Price     string   `json:"price"`
-	Volume    string   `json:"volume"`
-	Exchanges []string `json:"exchanges"`
+	Id        string   		    `json:"id"`
+	Price     string   		    `json:"price"`
+	Volume    string   		    `json:"volume"`
+	Exchanges []string 		    `json:"exchanges"`
+	Errors	  []*exchange.Error `json:"errors"`
 }
 
 type Params struct {
