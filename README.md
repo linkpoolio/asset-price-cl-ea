@@ -5,7 +5,7 @@ External Adaptor for Chainlink which aggregates prices of crypto assets from mul
 
 - Binance
 - Bitfinex
-- Bitstamp
+- ~~Bitstamp~~ (Disabled due to rate limit)
 - GDAX
 - HitBTC
 - Huobi Pro
@@ -22,15 +22,23 @@ make build
 
 Then run the adaptor:
 ```
-export PORT=8080
-./asset-price-cl-ea
+./asset-price-cl-ea -p <port> -t <tickerInterval>
 ```
+
+##### Arguments
+
+| Char   | Default  | Usage |
+| ------ |:--------:| ----- |
+| p      | 8080     | Port number to serve |
+| t      | 1m0s     | Ticker interval for the adaptor to refresh supported trading pairs, suggested units: s, m, h |
 
 #### Docker
 To run the container:
 ```
 docker run -it -p 8080:8080 -e PORT=8080 linkpoolio/asset-price-cl-ea
 ```
+
+Container also supports passing in CLI arguments.
 
 ### Usage
 
