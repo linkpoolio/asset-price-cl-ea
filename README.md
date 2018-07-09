@@ -6,6 +6,7 @@ External Adaptor for Chainlink which aggregates prices of crypto assets from mul
 - Binance
 - Bitfinex
 - ~~Bitstamp~~ (Disabled due to rate limit)
+- Bittrex
 - GDAX
 - HitBTC
 - Huobi Pro

@@ -3,7 +3,6 @@ package exchange
 import (
 	"testing"
 	"github.com/stretchr/testify/assert"
-	"log"
 )
 
 func TestBitstamp_SetPairs(t *testing.T) {
