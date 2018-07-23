@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"log"
+	log "github.com/sirupsen/logrus"
 )
 
 type Log struct {
@@ -180,7 +180,13 @@ func setExchangePairs() {
 	for _, exc := range exchanges {
 		go func(exc exchange.Exchange) {
 			defer wg.Done()
-			exc.SetPairs()
+			err := exc.SetPairs()
+			if err != nil {
+				log.WithFields(log.Fields{
+					"exchange": err.Exchange,
+					"msg": err.Message,
+				}).Error("error from exchange on setting pairs")
+			}
 		}(exc)
 	}
 

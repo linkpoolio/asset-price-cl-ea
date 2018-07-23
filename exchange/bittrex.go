@@ -2,7 +2,6 @@ package exchange
 
 import (
 	"fmt"
-	"log"
 )
 
 type Bittrex struct {
@@ -43,16 +42,17 @@ func (exc *Bittrex) GetResponse(base, quote string) (*Response, *Error) {
 	return &Response{Name: config.Name, Price: summaries.Result[0].Last, Volume: summaries.Result[0].Volume}, nil
 }
 
-func (exc *Bittrex) SetPairs() {
+func (exc *Bittrex) SetPairs() *Error {
 	var markets BittrexMarkets
 	config := exc.GetConfig()
 	err := HttpGet(config, "/public/getmarkets", &markets)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	for _, pair := range markets.Result {
 		exc.Pairs = append(exc.Pairs, &Pair{Base: pair.BaseCurrency, Quote: pair.MarketCurrency})
 	}
+	return nil
 }
 
 func (exc *Bittrex) GetConfig() *Config {

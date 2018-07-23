@@ -2,7 +2,7 @@ package web
 
 import (
 	"github.com/ant0ine/go-json-rest/rest"
-	"log"
+	log "github.com/sirupsen/logrus"
 )
 
 func Api() *rest.Api{
@@ -15,11 +15,11 @@ func Api() *rest.Api{
 		log.Fatal(err)
 	}
 
-	log.Print("Starting trading pairs ticker...")
+	log.Print("starting trading pairs ticker")
 	StartPairsTicker()
-	log.Print("Set trading pairs, starting API...")
+	log.Print("set trading pairs, starting API...")
 
 	api.SetApp(router)
-	log.Print("API started!")
+	log.Print("api started")
 	return api
 }
