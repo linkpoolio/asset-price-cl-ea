@@ -2,7 +2,6 @@ package exchange
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -27,12 +26,12 @@ func (exc *Bitfinex) GetResponse(base, quote string) (*Response, *Error) {
 	return &Response{Name: config.Name, Price: ToFloat64(ticker.LastPrice), Volume: volume}, nil
 }
 
-func (exc *Bitfinex) SetPairs() {
+func (exc *Bitfinex) SetPairs() *Error {
 	var pairs []string
 	config := exc.GetConfig()
 	err := HttpGet(config, "/symbols", &pairs)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	// We have to assume all BTC pairs are 3char base, 3char quote. No base/quote given in API.
 	for _, pair := range pairs {
@@ -42,6 +41,7 @@ func (exc *Bitfinex) SetPairs() {
 				&Pair{Base: strings.ToUpper(pair[0:3]), Quote: strings.ToUpper(pair[3:6])})
 		}
 	}
+	return nil
 }
 
 func (exc *Bitfinex) GetConfig() *Config {

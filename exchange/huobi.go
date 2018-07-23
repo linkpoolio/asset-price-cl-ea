@@ -2,7 +2,6 @@ package exchange
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -45,16 +44,17 @@ func (exc *Huobi) GetResponse(base, quote string) (*Response, *Error) {
 	return &Response{config.Name, market.Ticker.Close, market.Ticker.Volume}, nil
 }
 
-func (exc *Huobi) SetPairs() {
+func (exc *Huobi) SetPairs() *Error {
 	var pairs HuobiPairs
 	config := exc.GetConfig()
 	err := HttpGet(config, "/v1/common/symbols", &pairs)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	for _, pair := range pairs.Data {
 		exc.Pairs = append(exc.Pairs, &Pair{Base: strings.ToUpper(pair.Base), Quote: strings.ToUpper(pair.Quote)})
 	}
+	return nil
 }
 
 func (exc *Huobi) GetConfig() *Config {

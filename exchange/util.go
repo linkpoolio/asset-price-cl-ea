@@ -48,7 +48,7 @@ type Exchange interface {
 	GetConfig() *Config
 	GetPairs() []*Pair
 	GetResponse(base, quote string) (*Response, *Error)
-	SetPairs()
+	SetPairs() *Error
 }
 
 func GetSupportedExchanges() []Exchange {

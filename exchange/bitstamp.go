@@ -3,7 +3,6 @@ package exchange
 import (
 	"fmt"
 	"strings"
-	"log"
 )
 
 type Bitstamp struct {
@@ -32,12 +31,12 @@ func (exc *Bitstamp) GetResponse(base, quote string) (*Response, *Error) {
 	return &Response{exc.GetConfig().Name, ToFloat64(bst.Last), volume}, nil
 }
 
-func (exc *Bitstamp) SetPairs() {
+func (exc *Bitstamp) SetPairs() *Error {
 	var pairs []BitstampPair
 	config := exc.GetConfig()
 	err := HttpGet(config, "/trading-pairs-info/", &pairs)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	for _, pair := range pairs {
 		if pair.Trading == "Enabled" {
@@ -45,6 +44,7 @@ func (exc *Bitstamp) SetPairs() {
 			exc.Pairs = append(exc.Pairs, &Pair{currencies[0], currencies[1]})
 		}
 	}
+	return nil
 }
 
 func (exc *Bitstamp) GetConfig() *Config {

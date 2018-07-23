@@ -2,7 +2,6 @@ package exchange
 
 import (
 	"fmt"
-	"log"
 )
 
 type HitBtc struct {
@@ -30,16 +29,17 @@ func (exc *HitBtc) GetResponse(base, quote string) (*Response, *Error) {
 	return &Response{config.Name, ToFloat64(ticker.Last), ToFloat64(ticker.VolumeQuote)}, nil
 }
 
-func (exc *HitBtc) SetPairs() {
+func (exc *HitBtc) SetPairs() *Error {
 	var pairs []HitBtcPair
 	config := exc.GetConfig()
 	err := HttpGet(config, "/public/symbol/", &pairs)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	for _, pair := range pairs {
 		exc.Pairs = append(exc.Pairs, &Pair{Base: pair.Base, Quote: pair.Quote})
 	}
+	return nil
 }
 
 func (exc *HitBtc) GetConfig() *Config {

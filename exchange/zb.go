@@ -2,7 +2,6 @@ package exchange
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -31,18 +30,19 @@ func (exc *ZB) GetResponse(base, quote string) (*Response, *Error) {
 	return &Response{Name: config.Name, Price: ToFloat64(market.Ticker.Last), Volume: volume}, nil
 }
 
-func (exc *ZB) SetPairs() {
+func (exc *ZB) SetPairs() *Error {
 	var pairs map[string]interface{}
 	config := exc.GetConfig()
 	err := HttpGet(config, "/markets", &pairs)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	for pair := range pairs {
 		details := strings.Split(pair, "_")
 		exc.Pairs = append(exc.Pairs, &Pair{Base: strings.ToUpper(details[0]), Quote: strings.ToUpper(details[1])})
 	}
+	return nil
 }
 
 func (exc *ZB) GetConfig() *Config {

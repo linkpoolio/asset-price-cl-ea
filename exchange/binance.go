@@ -1,10 +1,7 @@
 package exchange
 
 import (
-	"github.com/adshao/go-binance"
-	"context"
 	"fmt"
-	"log"
 )
 
 type Binance struct {
@@ -17,6 +14,15 @@ type BinanceProduct struct {
 	Volume string `json:"quoteVolume"`
 }
 
+type BinanceSymbol struct {
+	BaseAsset string `json:"baseAsset"`
+	QuoteAsset string `json:"quoteAsset"`
+}
+
+type BinanceInfo struct {
+	Symbols []*BinanceSymbol `json:"symbols"`
+}
+
 func (exc *Binance) GetResponse(base, quote string) (*Response, *Error) {
 	var bp BinanceProduct
 	config := exc.GetConfig()
@@ -27,24 +33,24 @@ func (exc *Binance) GetResponse(base, quote string) (*Response, *Error) {
 	return &Response{config.Name, ToFloat64(bp.LastPrice), ToFloat64(bp.Volume)}, nil
 }
 
-func (exc *Binance) SetPairs() {
-	clientInterface := exc.GetConfig().Client
-	client := clientInterface.(*binance.Client)
+func (exc *Binance) SetPairs() *Error {
+	var bi BinanceInfo
+	config := exc.GetConfig()
 
-	exchangeInfo, err := client.NewExchangeInfoService().Do(context.Background())
+	err := HttpGet(config, "/exchangeInfo", &bi)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	for _, product := range exchangeInfo.Symbols {
+	for _, product := range bi.Symbols {
 		exc.Pairs = append(exc.Pairs, &Pair{product.BaseAsset, product.QuoteAsset})
 	}
+	return nil
 }
 
 func (exc *Binance) GetConfig() *Config {
 	return &Config{
 		Name: "Binance",
 		BaseUrl: "https://www.binance.com/api/v1",
-		Client: binance.NewClient("", ""),
 		Pairs: exc.Pairs}
 }
