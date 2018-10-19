@@ -100,24 +100,8 @@ curl -X POST -H 'Content-Type: application/json' -d '{ "jobRunId": "1234", "data
 
 ### ChainLink Node Setup
 
-To integrate this adaptor with your node, use the following commands:
-
-**Add Bridge Type**
-```
-curl -u <username>:<password> -X POST -H 'Content-Type: application/json' -d '{"name":"asset-price","url":"http://localhost:8080/price"}' http://localhost:6688/v2/bridge_types
-```
-
-**Create Spec**
-```
-curl -u <username>:<password> -X POST -H 'Content-Type: application/json' -d '{"initiators":[{"type":"web"}],"tasks":[{"type":"asset-price"},{"type":"noop"}]}' http://localhost:6688/v2/specs
-```
-
-**New Spec Run**
-
-Notice the parameters `base` and `quote`. These are passed into the external adaptor by the node.
-```
-curl -u <username>:<password> -X POST -H 'Content-Type: application/json' -d '{"base": "BTC", "quote": "USD"}' http://localhost:6688/v2/specs/<specId>/runs
-```
+To integrate this adaptor with your node, follow the official documentation:
+https://docs.chain.link/docs/node-operators
 
 ### Contribution
 We welcome any contributors. The more exchanges supported, the better. Feel free to raise any PR's or issues.
