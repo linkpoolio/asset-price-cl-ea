@@ -30,7 +30,7 @@ type Output struct {
 	Volume    string            `json:"volume"`
 	USDPrice  null.String       `json:"usdPrice"`
 	Exchanges []string          `json:"exchanges"`
-	Errors    []*exchange.Error `json:"errors"`
+	Warnings  []*exchange.Error `json:"warnings"`
 }
 
 type Params struct {
@@ -59,9 +59,9 @@ func GetResponse(w rest.ResponseWriter, r *rest.Request) {
 	q := strings.ToUpper(runResult.Params.Quote)
 
 	output := Output{Id: fmt.Sprintf("%s-%s", runResult.Params.Base, runResult.Params.Quote)}
-	responses, errors := getExchangeResponses(b, q)
-	if len(errors) > 0 {
-		output.Errors = append(runResult.Params.Errors, errors...)
+	responses, ee := getExchangeResponses(b, q)
+	if len(ee) > 0 {
+		output.Warnings = append(runResult.Params.Warnings, ee...)
 	} else if len(responses) == 0 {
 		writeErrorResult(
 			w,
@@ -75,14 +75,13 @@ func GetResponse(w rest.ResponseWriter, r *rest.Request) {
 	output.Price = strconv.FormatFloat(p, 'f', -1, 64)
 	output.Volume = strconv.FormatFloat(v, 'f', -1, 64)
 
-	qup, ee := getQuoteUSDPrice(q, p)
-	if len(ee) > 0 {
-		output.Errors = append(runResult.Params.Errors, errors...)
-	}
-	if !strings.Contains(q, "USD") {
+	qup, ee := getQuoteUSDPrice(q)
+	if strings.Contains(q, "USD") {
+		output.USDPrice = null.StringFrom(output.Price)
+	} else if len(ee) == 0 {
 		output.USDPrice = null.StringFrom(strconv.FormatFloat(qup*p, 'f', -1, 64))
 	} else {
-		output.USDPrice = null.StringFrom(output.Price)
+		output.Warnings = append(runResult.Params.Warnings, ee...)
 	}
 
 	for _, response := range responses {
@@ -149,8 +148,17 @@ func getExchangeResponses(base, quote string) ([]*exchange.Response, []*exchange
 	return responses, errors
 }
 
-func getQuoteUSDPrice(quote string, price float64) (float64, []*exchange.Error) {
+func getQuoteUSDPrice(quote string) (float64, []*exchange.Error) {
 	responses, err := getExchangeResponses(quote, "USD")
+	if len(responses) == 0 {
+		return 0, []*exchange.Error{
+			{
+				Exchange: "N/A",
+				Message:  fmt.Sprintf("no exchange supports the %s-USD pair for fetching usd price", quote),
+				Status:   "400",
+			},
+		}
+	}
 	if err != nil {
 		return 0, err
 	}

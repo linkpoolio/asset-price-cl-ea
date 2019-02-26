@@ -1,18 +1,18 @@
 package web
 
 import (
-	"testing"
-	"net/http/httptest"
-	"net/http"
-	"log"
-	"io/ioutil"
-	"encoding/json"
-	"github.com/stretchr/testify/assert"
-	"fmt"
 	"bytes"
+	"encoding/json"
+	"fmt"
+	"github.com/stretchr/testify/assert"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 )
 
-func init(){
+func init() {
 	InitialiseConfig()
 }
 
@@ -22,6 +22,7 @@ func TestBTCUSD(t *testing.T) {
 	assert.True(t, response.Params.Price != "0", "price returned from API is 0")
 	assert.True(t, response.Params.Volume != "0", "volume returned from API is 0")
 	assert.True(t, len(response.Params.Exchanges) > 1, "exchanges returned from API is less than 2")
+	assert.Equal(t, response.Params.Price, response.Params.USDPrice, "Price is meant to match USD price for USD quotes")
 	assert.Equal(t, response.Params.Id, "BTC-USD", "id of trading pair isn't correct")
 }
 
