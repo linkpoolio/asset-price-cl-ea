@@ -103,7 +103,7 @@ func StartPairsTicker() {
 	go func() {
 		for range ticker.C {
 			setExchangePairs()
-			log.Print("Trading pairs refreshed")
+			log.Print("trading pairs refreshed")
 		}
 	}()
 }
