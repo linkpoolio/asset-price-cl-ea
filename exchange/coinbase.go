@@ -5,12 +5,12 @@ import (
 	"fmt"
 )
 
-type GDAX struct {
+type Coinbase struct {
 	Exchange
 	Pairs []*Pair
 }
 
-func (exc *GDAX) GetResponse(base, quote string) (*Response, *Error) {
+func (exc *Coinbase) GetResponse(base, quote string) (*Response, *Error) {
 	clientInterface := exc.GetConfig().Client
 	client := clientInterface.(*gdax.Client)
 
@@ -22,7 +22,7 @@ func (exc *GDAX) GetResponse(base, quote string) (*Response, *Error) {
 	return &Response{exc.GetConfig().Name, ticker.Price,  ticker.Volume * ticker.Price}, nil
 }
 
-func (exc *GDAX) SetPairs() *Error {
+func (exc *Coinbase) SetPairs() *Error {
 	clientInterface := exc.GetConfig().Client
 	client := clientInterface.(*gdax.Client)
 
@@ -37,6 +37,6 @@ func (exc *GDAX) SetPairs() *Error {
 	return nil
 }
 
-func (exc *GDAX) GetConfig() *Config {
-	return &Config{Name: "GDAX", Client: gdax.NewClient("", "", ""), Pairs: exc.Pairs}
+func (exc *Coinbase) GetConfig() *Config {
+	return &Config{Name: "Coinbase", Client: gdax.NewClient("", "", ""), Pairs: exc.Pairs}
 }

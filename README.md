@@ -7,7 +7,9 @@ External Adaptor for Chainlink which aggregates prices of crypto assets from mul
 - Bitfinex
 - ~~Bitstamp~~ (Disabled due to rate limit)
 - Bittrex
-- GDAX
+- Coinall
+- Coinbase Pro
+- COSS
 - HitBTC
 - Huobi Pro
 - ZB
@@ -57,15 +59,16 @@ Should return something similar to:
         "base": "BTC",
         "quote": "USD",
         "id": "BTC-USD",
-        "price": "6754.1794331023375",
-        "volume": "195359536.70301655",
+        "price": "3836.4042305857843",
+        "volume": "131747894.87525243",
+        "usdPrice": "3836.4042305857843",
         "exchanges": [
-            "GDAX",
-            "Bitfinex",
             "HitBTC",
-            "Bitstamp"
+            "Bitfinex",
+            "Coinbase",
+            "COSS"
         ],
-        "errors": null
+        "warnings": null
     },
     "status": "",
     "error": null,
@@ -84,13 +87,15 @@ curl -X POST -H 'Content-Type: application/json' -d '{ "jobRunId": "1234", "data
         "base": "LINK",
         "quote": "ETH",
         "id": "LINK-ETH",
-        "price": "0.0004981579292115922",
-        "volume": "226.8355475505",
+        "price": "0.0031786459052877327",
+        "volume": "797.6642187877999",
+        "usdPrice": "0.43956635389465454",
         "exchanges": [
+            "Binance",
             "Huobi",
-            "Binance"
+            "COSS"
         ],
-        "errors": null
+        "warnings": null
     },
     "status": "",
     "error": null,

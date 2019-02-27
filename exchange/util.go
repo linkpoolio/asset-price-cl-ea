@@ -14,10 +14,13 @@ var (
 		&Bitfinex{},
 		//&Bitstamp{}, (Extreme rate limit)
 		&Bittrex{},
-		&GDAX{},
+		&Coinall{},
+		&COSS{},
+		&Coinbase{},
 		&Huobi{},
 		&HitBtc{},
-		&ZB{} }
+		&ZB{},
+	}
 )
 
 type Config struct {

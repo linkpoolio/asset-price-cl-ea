@@ -17,7 +17,7 @@ func Api() *rest.Api{
 
 	log.Print("starting trading pairs ticker")
 	StartPairsTicker()
-	log.Print("set trading pairs, starting API...")
+	log.Print("set trading pairs, starting api")
 
 	api.SetApp(router)
 	log.Print("api started")
