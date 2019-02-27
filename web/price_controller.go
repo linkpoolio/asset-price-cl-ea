@@ -1,18 +1,18 @@
 package web
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/linkpoolio/asset-price-cl-ea/exchange"
-	"fmt"
-	"sync"
-	"net/http"
-	"io/ioutil"
-	"encoding/json"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/guregu/null.v3"
+	"io/ioutil"
+	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
-	log "github.com/sirupsen/logrus"
 )
 
 type Log struct {
@@ -25,11 +25,12 @@ type Input struct {
 }
 
 type Output struct {
-	Id        string   		    `json:"id"`
-	Price     string   		    `json:"price"`
-	Volume    string   		    `json:"volume"`
-	Exchanges []string 		    `json:"exchanges"`
-	Errors	  []*exchange.Error `json:"errors"`
+	Id        string            `json:"id"`
+	Price     string            `json:"price"`
+	Volume    string            `json:"volume"`
+	USDPrice  null.String       `json:"usdPrice"`
+	Exchanges []string          `json:"exchanges"`
+	Warnings  []*exchange.Error `json:"warnings"`
 }
 
 type Params struct {
@@ -38,16 +39,15 @@ type Params struct {
 }
 
 type RunResult struct {
-	JobRunID     string        `json:"jobRunId"`
-	Params       Params        `json:"data"`
-	Status       string        `json:"status"`
-	ErrorMessage null.String   `json:"error"`
-	Pending      bool          `json:"pending"`
+	JobRunID     string      `json:"jobRunId"`
+	Params       Params      `json:"data"`
+	Status       string      `json:"status"`
+	ErrorMessage null.String `json:"error"`
+	Pending      bool        `json:"pending"`
 }
 
 func GetResponse(w rest.ResponseWriter, r *rest.Request) {
 	bytes, _ := ioutil.ReadAll(r.Body)
-
 	var runResult RunResult
 	err := json.Unmarshal(bytes, &runResult)
 	if err != nil {
@@ -55,12 +55,13 @@ func GetResponse(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
+	b := strings.ToUpper(runResult.Params.Base)
+	q := strings.ToUpper(runResult.Params.Quote)
+
 	output := Output{Id: fmt.Sprintf("%s-%s", runResult.Params.Base, runResult.Params.Quote)}
-	responses, errors := getExchangeResponses(
-		strings.ToUpper(runResult.Params.Base),
-		strings.ToUpper(runResult.Params.Quote))
-	if len(errors) > 0 {
-		output.Errors = append(runResult.Params.Errors, errors...)
+	responses, ee := getExchangeResponses(b, q)
+	if len(ee) > 0 {
+		output.Warnings = append(runResult.Params.Warnings, ee...)
 	} else if len(responses) == 0 {
 		writeErrorResult(
 			w,
@@ -70,23 +71,26 @@ func GetResponse(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
-	var price float64
-	var volume float64
+	p, v := aggregateResponses(responses)
+	output.Price = strconv.FormatFloat(p, 'f', -1, 64)
+	output.Volume = strconv.FormatFloat(v, 'f', -1, 64)
+
+	qup, ee := getQuoteUSDPrice(q)
+	if strings.Contains(q, "USD") {
+		output.USDPrice = null.StringFrom(output.Price)
+	} else if len(ee) == 0 {
+		output.USDPrice = null.StringFrom(strconv.FormatFloat(qup*p, 'f', -1, 64))
+	} else {
+		output.Warnings = append(runResult.Params.Warnings, ee...)
+	}
 
 	for _, response := range responses {
 		if response != nil {
 			output.Exchanges = append(output.Exchanges, response.Name)
-			volume += response.Volume
 		}
 	}
-	for _, response := range responses {
-		if response != nil {
-			price += (response.Volume / volume) * response.Price
-		}
-	}
-	output.Price = strconv.FormatFloat(price, 'f', -1, 64)
-	output.Volume = strconv.FormatFloat(volume, 'f', -1, 64)
-	params := Params{ runResult.Params.Input, output }
+
+	params := Params{runResult.Params.Input, output}
 	runResult.Params = params
 
 	w.WriteJson(runResult)
@@ -99,7 +103,7 @@ func StartPairsTicker() {
 	go func() {
 		for range ticker.C {
 			setExchangePairs()
-			log.Print("Trading pairs refreshed")
+			log.Print("trading pairs refreshed")
 		}
 	}()
 }
@@ -144,6 +148,40 @@ func getExchangeResponses(base, quote string) ([]*exchange.Response, []*exchange
 	return responses, errors
 }
 
+func getQuoteUSDPrice(quote string) (float64, []*exchange.Error) {
+	responses, err := getExchangeResponses(quote, "USD")
+	if len(responses) == 0 {
+		return 0, []*exchange.Error{
+			{
+				Exchange: "N/A",
+				Message:  fmt.Sprintf("no exchange supports the %s-USD pair for fetching usd price", quote),
+				Status:   "400",
+			},
+		}
+	}
+	if err != nil {
+		return 0, err
+	}
+	p, _ := aggregateResponses(responses)
+	return p, nil
+}
+
+func aggregateResponses(responses []*exchange.Response) (float64, float64) {
+	var price float64
+	var volume float64
+	for _, response := range responses {
+		if response != nil {
+			volume += response.Volume
+		}
+	}
+	for _, response := range responses {
+		if response != nil {
+			price += (response.Volume / volume) * response.Price
+		}
+	}
+	return price, volume
+}
+
 func getExchangesWithPairSupport(base, quote string) []exchange.Exchange {
 	exchanges := exchange.GetSupportedExchanges()
 
@@ -184,7 +222,7 @@ func setExchangePairs() {
 			if err != nil {
 				log.WithFields(log.Fields{
 					"exchange": err.Exchange,
-					"msg": err.Message,
+					"msg":      err.Message,
 				}).Error("error from exchange on setting pairs")
 			}
 		}(exc)

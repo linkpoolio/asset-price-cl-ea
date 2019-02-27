@@ -1,18 +1,18 @@
 package web
 
 import (
-	"testing"
-	"net/http/httptest"
-	"net/http"
-	"log"
-	"io/ioutil"
-	"encoding/json"
-	"github.com/stretchr/testify/assert"
-	"fmt"
 	"bytes"
+	"encoding/json"
+	"fmt"
+	"github.com/stretchr/testify/assert"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 )
 
-func init(){
+func init() {
 	InitialiseConfig()
 }
 
@@ -23,6 +23,13 @@ func TestBTCUSD(t *testing.T) {
 	assert.True(t, response.Params.Volume != "0", "volume returned from API is 0")
 	assert.True(t, len(response.Params.Exchanges) > 1, "exchanges returned from API is less than 2")
 	assert.Equal(t, response.Params.Id, "BTC-USD", "id of trading pair isn't correct")
+
+	assert.Equal(
+		t,
+		response.Params.Price,
+		response.Params.USDPrice.String,
+		"Price is meant to match USD price for USD quotes",
+	)
 }
 
 func TestETHEUR(t *testing.T) {
@@ -31,6 +38,7 @@ func TestETHEUR(t *testing.T) {
 	assert.True(t, response.Params.Price != "0", "price returned from API is 0")
 	assert.True(t, response.Params.Volume != "0", "volume returned from API is 0")
 	assert.True(t, len(response.Params.Exchanges) > 1, "exchanges returned from API is less than 2")
+	assert.Equal(t, response.Params.USDPrice.String, "", "usd price returned from API is 0")
 	assert.Equal(t, response.Params.Id, "ETH-EUR", "id of trading pair isn't correct")
 }
 
@@ -39,6 +47,7 @@ func TestLINKETH(t *testing.T) {
 
 	assert.True(t, response.Params.Price != "0", "price returned from API is 0")
 	assert.True(t, response.Params.Volume != "0", "volume returned from API is 0")
+	assert.True(t, response.Params.USDPrice.String != "0", "usd price is 0")
 	assert.True(t, len(response.Params.Exchanges) > 0, "exchanges returned from API was 0")
 	assert.Equal(t, response.Params.Id, "LINK-ETH", "id of trading pair isn't correct")
 }
@@ -48,6 +57,7 @@ func TestREQBTC(t *testing.T) {
 
 	assert.True(t, response.Params.Price != "0", "price returned from API is 0")
 	assert.True(t, response.Params.Volume != "0", "volume returned from API is 0")
+	assert.True(t, response.Params.USDPrice.String != "0", "usd price is 0")
 	assert.True(t, len(response.Params.Exchanges) > 0, "exchanges returned from API was 0")
 	assert.Equal(t, response.Params.Id, "REQ-BTC", "id of trading pair isn't correct")
 }
@@ -56,6 +66,7 @@ func TestUnknownPair(t *testing.T) {
 	response := getPairResponse("UNK", "UNK")
 	assert.Equal(t, response.Params.Price, "", "price returned from API is 0")
 	assert.Equal(t, response.Params.Volume, "", "volume returned from API is 0")
+	assert.Equal(t, response.Params.USDPrice.String, "", "usd price returned from API is 0")
 	assert.Equal(t, len(response.Params.Exchanges), 0, "exchanges returned from API was 0")
 	assert.Equal(t, response.Params.Id, "", "id of trading pair isn't correct")
 }
