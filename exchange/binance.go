@@ -11,11 +11,11 @@ type Binance struct {
 
 type BinanceProduct struct {
 	LastPrice string `json:"lastprice"`
-	Volume string `json:"quoteVolume"`
+	Volume    string `json:"quoteVolume"`
 }
 
 type BinanceSymbol struct {
-	BaseAsset string `json:"baseAsset"`
+	BaseAsset  string `json:"baseAsset"`
 	QuoteAsset string `json:"quoteAsset"`
 }
 
@@ -50,7 +50,7 @@ func (exc *Binance) SetPairs() *Error {
 
 func (exc *Binance) GetConfig() *Config {
 	return &Config{
-		Name: "Binance",
+		Name:    "Binance",
 		BaseUrl: "https://www.binance.com/api/v1",
-		Pairs: exc.Pairs}
+		Pairs:   exc.Pairs}
 }
