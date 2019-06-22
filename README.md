@@ -1,6 +1,8 @@
 # Asset Price External Adaptor ![Travis-CI](https://travis-ci.org/linkpoolio/asset-price-cl-ea.svg?branch=master) [![codecov](https://codecov.io/gh/linkpoolio/asset-price-cl-ea/branch/master/graph/badge.svg)](https://codecov.io/gh/linkpoolio/asset-price-cl-ea)
 External Adaptor for Chainlink which aggregates prices of crypto assets from multiple exchanges based on a weighted average of their volume.
 
+This adaptor is built using the bridges framework: https://github.com/linkpoolio/bridges
+
 ### Currently Supported Exchanges:
 
 - Binance
@@ -42,6 +44,10 @@ docker run -it -p 8080:8080 -e PORT=8080 linkpoolio/asset-price-cl-ea
 ```
 
 Container also supports passing in CLI arguments.
+
+#### AWS Lambda
+
+With the Bridges framework, this adaptor now supports being ran in AWS lambda. Although, it is strongly recommended to run it locally/Docker as it will be considerably slower in Lambda. Reason for this is due to the adaptor needing to fetch all trading pairs from exchanges prior to making the price calls. Whereas when ran non-serverless, this is a background task.
 
 ### Usage
 
@@ -107,6 +113,19 @@ curl -X POST -H 'Content-Type: application/json' -d '{ "jobRunId": "1234", "data
 
 To integrate this adaptor with your node, follow the official documentation:
 https://docs.chain.link/docs/node-operators
+
+### Solidity Usage
+
+To use this adaptor on-chain, you can create the following Chainlink request:
+```
+Chainlink.Request memory req = newRequest(jobId, this, this.fulfill.selector);
+req.add("base", "LINK");
+req.add("quote", "BTC");
+req.add("copyPath", "price");
+req.addInt("times", 100000000);
+```
+
+Allowing you to change `base` and `quote` to any trading pair.
 
 ### Contribution
 We welcome any contributors. The more exchanges supported, the better. Feel free to raise any PR's or issues.
