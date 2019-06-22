@@ -16,7 +16,7 @@ type HitBtcPair struct {
 
 type HitBtcTicker struct {
 	VolumeQuote string `json:"volumeQuote"`
-	Last  		string `json:"last"`
+	Last        string `json:"last"`
 }
 
 func (exc *HitBtc) GetResponse(base, quote string) (*Response, *Error) {
@@ -44,8 +44,8 @@ func (exc *HitBtc) SetPairs() *Error {
 
 func (exc *HitBtc) GetConfig() *Config {
 	return &Config{
-		Name: "HitBTC",
+		Name:    "HitBTC",
 		BaseUrl: "https://api.hitbtc.com/api/2",
-		Client: nil,
-		Pairs: exc.Pairs}
+		Client:  nil,
+		Pairs:   exc.Pairs}
 }

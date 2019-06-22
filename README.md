@@ -7,13 +7,15 @@ This adaptor is built using the bridges framework: https://github.com/linkpoolio
 
 - Binance
 - Bitfinex
-- ~~Bitstamp~~ (Disabled due to rate limit)
+- Bitstamp (Highly rate limited)
 - Bittrex
 - Coinall
 - Coinbase Pro
 - COSS
 - HitBTC
 - Huobi Pro
+- Kraken
+- Gemini
 - ZB
 
 ### Setup Instructions
@@ -118,7 +120,7 @@ https://docs.chain.link/docs/node-operators
 
 To use this adaptor on-chain, you can create the following Chainlink request:
 ```
-Chainlink.Request memory req = newRequest(jobId, this, this.fulfill.selector);
+Chainlink.Request memory req = buildChainlinkRequest(jobId, this, this.fulfill.selector);
 req.add("base", "LINK");
 req.add("quote", "BTC");
 req.add("copyPath", "price");

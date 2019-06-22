@@ -10,7 +10,7 @@ type Bittrex struct {
 }
 
 type BittrexTicker struct {
-	Volume 	  string `json:"volume"`
+	Volume    string `json:"volume"`
 	LastPrice string `json:"last_price"`
 }
 
@@ -57,8 +57,8 @@ func (exc *Bittrex) SetPairs() *Error {
 
 func (exc *Bittrex) GetConfig() *Config {
 	return &Config{
-		Name: "Bittrex",
+		Name:    "Bittrex",
 		BaseUrl: "https://bittrex.com/api/v1.1",
-		Client: nil,
-		Pairs: exc.Pairs}
+		Client:  nil,
+		Pairs:   exc.Pairs}
 }

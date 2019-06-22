@@ -1,12 +1,12 @@
 package app
 
 import (
-	"time"
 	"flag"
+	"time"
 )
 
 type Config struct {
-	Port 		   int
+	Port           int
 	TickerInterval time.Duration
 }
 

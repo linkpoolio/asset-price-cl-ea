@@ -44,8 +44,8 @@ func (exc *COSS) GetResponse(base, quote string) (*Response, *Error) {
 	}
 	return nil, &Error{
 		Exchange: config.Name,
-		Status: "400",
-		Message: "pair given wasn't found within market summaries",
+		Status:   "400",
+		Message:  "pair given wasn't found within market summaries",
 	}
 }
 

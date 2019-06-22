@@ -59,8 +59,8 @@ func (exc *Huobi) SetPairs() *Error {
 
 func (exc *Huobi) GetConfig() *Config {
 	return &Config{
-		Name: "Huobi",
+		Name:    "Huobi",
 		BaseUrl: "https://api.huobi.pro",
-		Client: nil,
-		Pairs: exc.Pairs}
+		Client:  nil,
+		Pairs:   exc.Pairs}
 }

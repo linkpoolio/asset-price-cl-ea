@@ -11,8 +11,8 @@ type ZB struct {
 }
 
 type ZBTicker struct {
-	Volume 	string `json:"vol"`
-	Last 	string `json:"last"`
+	Volume string `json:"vol"`
+	Last   string `json:"last"`
 }
 
 type ZBMarket struct {
@@ -47,8 +47,8 @@ func (exc *ZB) SetPairs() *Error {
 
 func (exc *ZB) GetConfig() *Config {
 	return &Config{
-		Name: "ZB",
+		Name:    "ZB",
 		BaseUrl: "http://api.zb.com/data/v1",
-		Client: nil,
-		Pairs: exc.Pairs}
+		Client:  nil,
+		Pairs:   exc.Pairs}
 }
