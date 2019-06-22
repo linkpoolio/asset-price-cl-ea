@@ -69,7 +69,7 @@ func HttpGet(config *Config, url string, excModel interface{}) *Error {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return &Error{Exchange: config.Name, Status: resp.Status, Message: err.Error()}
+		return &Error{Exchange: config.Name, Status: "500 ERROR", Message: err.Error()}
 	}
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
