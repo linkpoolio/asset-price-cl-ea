@@ -7,7 +7,7 @@ This adaptor is built using the bridges framework: https://github.com/linkpoolio
 
 - Binance
 - Bitfinex
-- ~~Bitstamp~~ (Disabled due to rate limit)
+- Bitstamp (Highly rate limited)
 - Bittrex
 - Coinall
 - Coinbase Pro

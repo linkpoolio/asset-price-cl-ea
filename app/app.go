@@ -51,13 +51,12 @@ func GetPrice(base, quote string) (*Output, error) {
 	output.Price = formatFloat(p)
 	output.Volume = formatFloat(v)
 
-	qup, ee := getQuoteUSDPrice(q)
-	if strings.Contains(q, "USD") {
-		output.USDPrice = null.StringFrom(output.Price)
-	} else if len(ee) == 0 {
-		output.USDPrice = null.StringFrom(strconv.FormatFloat(qup*p, 'f', -1, 64))
+	if quote == "USD" {
+		output.USDPrice = null.StringFrom(formatFloat(p))
 	} else {
+		qup, ee := getQuoteUSDPrice(q)
 		output.Warnings = append(output.Warnings, ee...)
+		output.USDPrice = null.StringFrom(formatFloat(qup*p))
 	}
 
 	for _, response := range responses {
@@ -120,11 +119,8 @@ func getQuoteUSDPrice(quote string) (float64, []*exchange.Error) {
 			},
 		}
 	}
-	if err != nil {
-		return 0, err
-	}
 	p, _ := aggregateResponses(responses)
-	return p, nil
+	return p, err
 }
 
 func aggregateResponses(responses []*exchange.Response) (float64, float64) {
