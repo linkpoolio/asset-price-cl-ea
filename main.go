@@ -1,16 +1,26 @@
 package main
 
 import (
-	"fmt"
-	"github.com/linkpoolio/asset-price-cl-ea/web"
-	log "github.com/sirupsen/logrus"
-	"net/http"
+	"github.com/linkpoolio/asset-price-cl-ea/app"
+	"github.com/linkpoolio/bridges/bridge"
 )
 
-func main() {
-	web.InitialiseConfig()
+type AssetPrice struct{}
 
-	log.Print("chainlink asset price adaptor")
-	log.Printf("starting to serve on port %d", web.Config.Port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", web.Config.Port), web.Api().MakeHandler()))
+func (ap *AssetPrice) Run(h *bridge.Helper) (interface{}, error) {
+	return app.GetPrice(h.GetParam("base"), h.GetParam("quote"))
+}
+
+func (ap *AssetPrice) Opts() *bridge.Opts {
+	return &bridge.Opts{
+		Name:   "Asset Price",
+		Lambda: false,
+		Path:   "/price",
+	}
+}
+
+func main() {
+	c := app.NewConfig()
+	app.StartPairsTicker(c)
+	bridge.NewServer(&AssetPrice{}).Start(c.Port)
 }
