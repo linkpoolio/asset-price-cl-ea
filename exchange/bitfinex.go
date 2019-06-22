@@ -11,7 +11,7 @@ type Bitfinex struct {
 }
 
 type BitfinexTicker struct {
-	Volume 	  string `json:"volume"`
+	Volume    string `json:"volume"`
 	LastPrice string `json:"last_price"`
 }
 
@@ -46,8 +46,8 @@ func (exc *Bitfinex) SetPairs() *Error {
 
 func (exc *Bitfinex) GetConfig() *Config {
 	return &Config{
-		Name: "Bitfinex",
+		Name:    "Bitfinex",
 		BaseUrl: "https://api.bitfinex.com/v1",
-		Client: nil,
-		Pairs: exc.Pairs}
+		Client:  nil,
+		Pairs:   exc.Pairs}
 }

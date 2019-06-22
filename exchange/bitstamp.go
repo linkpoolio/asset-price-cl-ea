@@ -11,12 +11,12 @@ type Bitstamp struct {
 }
 
 type BitstampModel struct {
-	Last string `json:"last"`
+	Last   string `json:"last"`
 	Volume string `json:"volume"`
 }
 
 type BitstampPair struct {
-	Name string `json:"name"`
+	Name    string `json:"name"`
 	Trading string `json:"trading"`
 }
 

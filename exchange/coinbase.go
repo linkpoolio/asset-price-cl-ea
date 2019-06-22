@@ -1,8 +1,8 @@
 package exchange
 
 import (
-	"github.com/preichenberger/go-gdax"
 	"fmt"
+	"github.com/preichenberger/go-gdax"
 )
 
 type Coinbase struct {
@@ -19,7 +19,7 @@ func (exc *Coinbase) GetResponse(base, quote string) (*Response, *Error) {
 		return nil, &Error{exc.GetConfig().Name, "500 ERROR", err.Error()}
 	}
 
-	return &Response{exc.GetConfig().Name, ticker.Price,  ticker.Volume * ticker.Price}, nil
+	return &Response{exc.GetConfig().Name, ticker.Price, ticker.Volume * ticker.Price}, nil
 }
 
 func (exc *Coinbase) SetPairs() *Error {

@@ -1,9 +1,9 @@
 package exchange
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
 	"log"
+	"testing"
 )
 
 func TestHitBtc_SetPairs(t *testing.T) {

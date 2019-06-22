@@ -48,8 +48,8 @@ func GetPrice(base, quote string) (*Output, error) {
 	}
 
 	p, v := aggregateResponses(responses)
-	output.Price = strconv.FormatFloat(p, 'f', -1, 64)
-	output.Volume = strconv.FormatFloat(v, 'f', -1, 64)
+	output.Price = formatFloat(p)
+	output.Volume = formatFloat(v)
 
 	qup, ee := getQuoteUSDPrice(q)
 	if strings.Contains(q, "USD") {
@@ -115,7 +115,7 @@ func getQuoteUSDPrice(quote string) (float64, []*exchange.Error) {
 		return 0, []*exchange.Error{
 			{
 				Exchange: "N/A",
-				Message:  fmt.Sprintf("no exchange supports the %s-USD pair for fetching usd price", quote),
+				Message:  fmt.Sprintf("No exchange supports the %s-USD pair for fetching usd price", quote),
 				Status:   "400",
 			},
 		}
@@ -190,4 +190,12 @@ func setExchangePairs() {
 	}
 
 	wg.Wait()
+}
+
+func formatFloat(float float64) string {
+	str := strconv.FormatFloat(float, 'f', -1, 64)
+	if str == "NaN" {
+		return "0"
+	}
+	return str
 }

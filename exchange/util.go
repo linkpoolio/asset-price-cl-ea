@@ -1,10 +1,10 @@
 package exchange
 
 import (
-	"net/http"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"encoding/json"
+	"net/http"
 	"strconv"
 )
 
@@ -12,38 +12,40 @@ var (
 	exchanges = []Exchange{
 		&Binance{},
 		&Bitfinex{},
-		//&Bitstamp{}, (Extreme rate limit)
+		&Bitstamp{},
 		&Bittrex{},
 		&Coinall{},
 		&COSS{},
 		&Coinbase{},
+		&Gemini{},
 		&Huobi{},
 		&HitBtc{},
+		&Kraken{},
 		&ZB{},
 	}
 )
 
 type Config struct {
-	Name string
+	Name    string
 	BaseUrl string
-	Client interface{}
-	Pairs []*Pair
+	Client  interface{}
+	Pairs   []*Pair
 }
 
 type Error struct {
 	Exchange string
-	Status string
-	Message string
+	Status   string
+	Message  string
 }
 
 type Response struct {
-	Name string
-	Price float64
+	Name   string
+	Price  float64
 	Volume float64
 }
 
 type Pair struct {
-	Base string
+	Base  string
 	Quote string
 }
 
@@ -64,8 +66,8 @@ func HttpGet(config *Config, url string, excModel interface{}) *Error {
 	if err != nil {
 		return &Error{
 			Exchange: config.Name,
-			Status: "500 ERROR",
-			Message: fmt.Sprintf("error on forming request to %s", config.Name)}
+			Status:   "500 ERROR",
+			Message:  fmt.Sprintf("error on forming request to %s", config.Name)}
 	}
 	resp, err := client.Do(req)
 	if err != nil {
