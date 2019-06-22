@@ -14,7 +14,7 @@ func (ap *AssetPrice) Run(h *bridge.Helper) (interface{}, error) {
 func (ap *AssetPrice) Opts() *bridge.Opts {
 	return &bridge.Opts{
 		Name:   "Asset Price",
-		Lambda: false,
+		Lambda: true,
 		Path:   "/price",
 	}
 }
