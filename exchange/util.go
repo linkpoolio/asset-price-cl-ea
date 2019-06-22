@@ -12,7 +12,7 @@ var (
 	exchanges = []Exchange{
 		&Binance{},
 		&Bitfinex{},
-		&Bitstamp{},
+		//&Bitstamp{}, (Extreme rate limit)
 		&Bittrex{},
 		&Coinall{},
 		&COSS{},

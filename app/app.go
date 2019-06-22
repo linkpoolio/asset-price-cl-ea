@@ -56,7 +56,9 @@ func GetPrice(base, quote string) (*Output, error) {
 	} else {
 		qup, ee := getQuoteUSDPrice(q)
 		output.Warnings = append(output.Warnings, ee...)
-		output.USDPrice = null.StringFrom(formatFloat(qup*p))
+		if qup != 0 {
+			output.USDPrice = null.StringFrom(formatFloat(qup*p))
+		}
 	}
 
 	for _, response := range responses {
