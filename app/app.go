@@ -12,15 +12,6 @@ import (
 	"time"
 )
 
-type Log struct {
-	Message string
-}
-
-type Input struct {
-	Base  string `json:"base"`
-	Quote string `json:"quote"`
-}
-
 type Output struct {
 	ID        string            `json:"id"`
 	Price     string            `json:"price"`
@@ -28,11 +19,6 @@ type Output struct {
 	USDPrice  null.String       `json:"usdPrice"`
 	Exchanges []string          `json:"exchanges"`
 	Warnings  []*exchange.Error `json:"warnings"`
-}
-
-type Params struct {
-	Input
-	Output
 }
 
 func GetPrice(base, quote string) (*Output, error) {
