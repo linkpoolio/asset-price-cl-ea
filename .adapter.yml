@@ -1,0 +1,30 @@
+name: Asset Price
+description: Adapter that aggregates prices of crypto assets from multiple exchanges based on a weighted average of their volume.
+node_identifier: assetprice
+platforms:
+  - Docker
+  - Lambda
+data_sources:
+  - name: Binance
+    url: https://binance.com
+  - name: Bitstamp
+    url: https://www.bitstamp.net/
+  - name: Coinall
+    url: https://www.coinall.com/
+  - name: Coinbase Pro
+    url: https://pro.coinbase.com
+  - name: COSS
+    url: https://coss.io
+  - name: HitBTC
+    url: https://hitbtc.com/
+  - name: Huobi
+    url: https://www.huobi.com/
+  - name: Kraken
+    url: https://kraken.com
+  - name: Gemini
+    url: https://gemini.com/
+  - name: ZB
+    url: https://web.zb.com/
+parameters:
+  - base
+  - quote
