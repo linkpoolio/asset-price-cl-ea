@@ -3,7 +3,7 @@ package app
 import (
 	"errors"
 	"fmt"
-	"github.com/linkpoolio/asset-price-cl-ea/exchange"
+	"github.com/linkpoolio/asset-price-cl-ea/app/exchange"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/guregu/null.v3"
 	"strconv"
@@ -18,7 +18,7 @@ type Output struct {
 	Volume    string            `json:"volume"`
 	USDPrice  null.String       `json:"usdPrice"`
 	Exchanges []string          `json:"exchanges"`
-	Warnings  []*exchange.Error `json:"warnings"`
+	Warnings  []*exchange.Error `json:"warnings,omitempty"`
 }
 
 func GetPrice(base, quote string) (*Output, error) {
@@ -58,6 +58,9 @@ func GetPrice(base, quote string) (*Output, error) {
 
 func StartPairsTicker(c *Config) {
 	setExchangePairs()
+	if c == nil {
+		return
+	}
 
 	ticker := time.NewTicker(c.TickerInterval)
 	go func() {

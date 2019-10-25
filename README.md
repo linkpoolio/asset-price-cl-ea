@@ -47,9 +47,29 @@ docker run -it -p 8080:8080 -e PORT=8080 linkpoolio/asset-price-cl-ea
 
 Container also supports passing in CLI arguments.
 
-#### AWS Lambda
+## AWS Lambda
+1. Build the executable:
+    ```bash
+    GO111MODULE=on go build -o asset-price
+    ```
+2. Add the file to a ZIP archive:
+    ```bash
+    zip asset-price.zip ./asset-price
+    ```
+3. Upload the the zip file into AWS and then use `asset-price` as the
+handler.
+4. Set the `LAMBDA` environment variable to `true` in AWS for
+the adaptor to be compatible with Lambda.
 
-With the Bridges framework, this adaptor now supports being ran in AWS lambda. Although, it is strongly recommended to run it locally/Docker as it will be considerably slower in Lambda. Reason for this is due to the adaptor needing to fetch all trading pairs from exchanges prior to making the price calls. Whereas when ran non-serverless, this is a background task.
+## GCP Functions
+1. Change into the app directory:
+    ```bash
+    cd app
+    ```
+2. Deploy into GCP
+    ```bash
+    gcloud functions deploy asset-price --runtime go111 --entry-point Handler --trigger-http
+    ```
 
 ### Usage
 
