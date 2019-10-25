@@ -1,16 +1,16 @@
 .DEFAULT_GOAL := build
-.PHONY: dep build install docker dockerpush
+.PHONY: build install docker dockerpush
 
 REPO=linkpoolio/asset-price-cl-ea
 LDFLAGS=-ldflags "-X github.com/linkpoolio/asset-price-cl-ea/store.Sha=`git rev-parse HEAD`"
 
-dep:
-	@dep ensure
+gomod:
+    export GO111MODULE=on
 
-build: dep
+build: gomod
 	@go build $(LDFLAGS) -o asset-price-cl-ea
 
-install: dep
+install: gomod
 	@go install $(LDFLAGS)
 
 docker:
