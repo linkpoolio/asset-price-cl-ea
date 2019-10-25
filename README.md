@@ -47,7 +47,7 @@ docker run -it -p 8080:8080 -e PORT=8080 linkpoolio/asset-price-cl-ea
 
 Container also supports passing in CLI arguments.
 
-## AWS Lambda
+#### AWS Lambda
 1. Build the executable:
     ```bash
     GO111MODULE=on go build -o asset-price
@@ -61,7 +61,7 @@ handler.
 4. Set the `LAMBDA` environment variable to `true` in AWS for
 the adaptor to be compatible with Lambda.
 
-## GCP Functions
+#### GCP Functions
 1. Change into the app directory:
     ```bash
     cd app
