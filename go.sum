@@ -14,6 +14,8 @@ github.com/linkpoolio/bridges v0.0.0-20190825135452-fdae295c78f0 h1:U94Whjb/THRd
 github.com/linkpoolio/bridges v0.0.0-20190825135452-fdae295c78f0/go.mod h1:vQrsEAOjUvgWlTU+qGfA2VuRiytL89/VRd3yvauZ7cU=
 github.com/linkpoolio/bridges v0.0.0-20191023191308-5ab804c3d3a6 h1:ZRu8JJfCmebHmTiK3crfmD/nQVhkBeWwvINfdsB0uSA=
 github.com/linkpoolio/bridges v0.0.0-20191023191308-5ab804c3d3a6/go.mod h1:DInZAD65BIbStcCB8bvXqCeG2qJ1YXsdEsX7RdtSvkE=
+github.com/linkpoolio/bridges v0.0.0-20191025104425-88bd7b263478 h1:q1OaqixLPBagppubJelUeMSJfuV0W/qXUPYGtkzpRfg=
+github.com/linkpoolio/bridges v0.0.0-20191025104425-88bd7b263478/go.mod h1:DInZAD65BIbStcCB8bvXqCeG2qJ1YXsdEsX7RdtSvkE=
 github.com/montanaflynn/stats v0.5.0/go.mod h1:wL8QJuTMNUDYhXwkmfOly8iTdp5TEcJFWZD2D7SIkUc=
 github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852/go.mod h1:eqOVx5Vwu4gd2mmMZvVZsgIqNSaW3xxRThUJ0k/TPk4=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
