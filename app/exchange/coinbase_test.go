@@ -8,8 +8,8 @@ import (
 
 func TestCoinbase_SetPairs(t *testing.T) {
 	gdax := Coinbase{}
-	gdax.SetPairs()
-	pairs := gdax.GetConfig().Pairs
+	_ = gdax.RefreshPairs()
+	pairs := gdax.GetPairs()
 
 	assert.Contains(t, pairs, &Pair{"BTC", "USD"})
 	assert.Contains(t, pairs, &Pair{"ETH", "EUR"})

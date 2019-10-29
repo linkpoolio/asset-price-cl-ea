@@ -18,7 +18,7 @@ type Output struct {
 	Volume    string            `json:"volume"`
 	USDPrice  null.String       `json:"usdPrice"`
 	Exchanges []string          `json:"exchanges"`
-	Warnings  []*exchange.Error `json:"warnings,omitempty"`
+	Warnings  []error           `json:"warnings,omitempty"`
 }
 
 func GetPrice(base, quote string) (*Output, error) {
@@ -71,23 +71,23 @@ func StartPairsTicker(c *Config) {
 	}()
 }
 
-func getExchangeResponses(base, quote string) ([]*exchange.Response, []*exchange.Error) {
+func getExchangeResponses(base, quote string) ([]*exchange.Response, []error) {
 	exchanges := getExchangesWithPairSupport(base, quote)
 
 	var wg sync.WaitGroup
 	wg.Add(len(exchanges))
 
 	var responses []*exchange.Response
-	var errors []*exchange.Error
+	var errs []error
 
 	mutex := sync.Mutex{}
 	for _, exc := range exchanges {
-		go func(exc exchange.Exchange) {
+		go func(exc exchange.Interface) {
 			defer wg.Done()
 			response, err := exc.GetResponse(base, quote)
 			mutex.Lock()
 			if err != nil {
-				errors = append(errors, err)
+				errs = append(errs, err)
 			}
 			responses = append(responses, response)
 			mutex.Unlock()
@@ -96,22 +96,20 @@ func getExchangeResponses(base, quote string) ([]*exchange.Response, []*exchange
 
 	wg.Wait()
 
-	return responses, errors
+	return responses, errs
 }
 
-func getQuoteUSDPrice(quote string) (float64, []*exchange.Error) {
-	responses, err := getExchangeResponses(quote, "USD")
+func getQuoteUSDPrice(quote string) (float64, []error) {
+	responses, errs := getExchangeResponses(quote, "USD")
 	if len(responses) == 0 {
-		return 0, []*exchange.Error{
-			{
-				Exchange: "N/A",
-				Message:  fmt.Sprintf("No exchange supports the %s-USD pair for fetching usd price", quote),
-				Status:   "400",
-			},
-		}
+		errs = append(errs, &exchange.Error{
+			Exchange: "N/A",
+			Message:  fmt.Sprintf("No exchange supports the %s-USD pair for fetching usd price", quote),
+			Status:   "400",
+		})
 	}
 	p, _ := aggregateResponses(responses)
-	return p, err
+	return p, errs
 }
 
 func aggregateResponses(responses []*exchange.Response) (float64, float64) {
@@ -130,18 +128,18 @@ func aggregateResponses(responses []*exchange.Response) (float64, float64) {
 	return price, volume
 }
 
-func getExchangesWithPairSupport(base, quote string) []exchange.Exchange {
+func getExchangesWithPairSupport(base, quote string) []exchange.Interface {
 	exchanges := exchange.GetSupportedExchanges()
 
 	var wg sync.WaitGroup
 	wg.Add(len(exchanges))
 
 	mutex := sync.Mutex{}
-	var supported []exchange.Exchange
+	var supported []exchange.Interface
 	for _, exc := range exchanges {
-		go func(exc exchange.Exchange) {
+		go func(exc exchange.Interface) {
 			defer wg.Done()
-			for _, pair := range exc.GetConfig().Pairs {
+			for _, pair := range exc.GetPairs() {
 				if pair.Base == base && pair.Quote == quote {
 					mutex.Lock()
 					supported = append(supported, exc)
@@ -164,14 +162,11 @@ func setExchangePairs() {
 	wg.Add(len(exchanges))
 
 	for _, exc := range exchanges {
-		go func(exc exchange.Exchange) {
+		go func(exc exchange.Interface) {
 			defer wg.Done()
-			err := exc.SetPairs()
+			err := exc.RefreshPairs()
 			if err != nil {
-				log.WithFields(log.Fields{
-					"exchange": err.Exchange,
-					"msg":      err.Message,
-				}).Error("Error from exchange on setting pairs")
+				log.Error(err)
 			}
 		}(exc)
 	}

@@ -8,8 +8,8 @@ import (
 
 func TestGemini_SetPairs(t *testing.T) {
 	gemini := Gemini{}
-	gemini.SetPairs()
-	pairs := gemini.GetConfig().Pairs
+	_ = gemini.RefreshPairs()
+	pairs := gemini.GetPairs()
 
 	assert.Contains(t, pairs, &Pair{"ETH", "USD"})
 	assert.Contains(t, pairs, &Pair{"BTC", "USD"})

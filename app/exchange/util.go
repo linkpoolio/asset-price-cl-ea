@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	exchanges = []Exchange{
+	exchanges = []Interface{
 		&Binance{},
 		&Bitfinex{},
 		//&Bitstamp{}, (Extreme rate limit)
@@ -27,15 +27,18 @@ var (
 
 type Config struct {
 	Name    string
-	BaseUrl string
+	BaseURL string
 	Client  interface{}
-	Pairs   []*Pair
 }
 
 type Error struct {
 	Exchange string
 	Status   string
 	Message  string
+}
+
+func (e Error) Error() string {
+	return fmt.Sprintf("%s: %s (status: %s)", e.Exchange, e.Message, e.Status)
 }
 
 type Response struct {
@@ -49,20 +52,32 @@ type Pair struct {
 	Quote string
 }
 
-type Exchange interface {
-	GetConfig() *Config
-	GetPairs() []*Pair
-	GetResponse(base, quote string) (*Response, *Error)
-	SetPairs() *Error
+type Exchange struct {
+	pairs []*Pair
 }
 
-func GetSupportedExchanges() []Exchange {
+type Interface interface {
+	GetConfig() *Config
+	GetResponse(base, quote string) (*Response, error)
+	RefreshPairs() error
+	GetPairs() []*Pair
+}
+
+func GetSupportedExchanges() []Interface {
 	return exchanges
 }
 
-func HttpGet(config *Config, url string, excModel interface{}) *Error {
+func (exc *Exchange) GetPairs() []*Pair {
+	return exc.pairs
+}
+
+func (exc *Exchange) SetPairs(pairs []*Pair) {
+	exc.pairs = pairs
+}
+
+func (exc *Exchange) HttpGet(config *Config, url string, excModel interface{}) error {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", config.BaseUrl, url), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", config.BaseURL, url), nil)
 	if err != nil {
 		return &Error{
 			Exchange: config.Name,
@@ -84,7 +99,7 @@ func HttpGet(config *Config, url string, excModel interface{}) *Error {
 	return nil
 }
 
-func ToFloat64(v interface{}) float64 {
+func (exc *Exchange) toFloat64(v interface{}) float64 {
 	if v == nil {
 		return 0.0
 	}

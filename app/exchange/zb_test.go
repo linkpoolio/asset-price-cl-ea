@@ -8,8 +8,8 @@ import (
 
 func TestZB_SetPairs(t *testing.T) {
 	zb := ZB{}
-	zb.SetPairs()
-	pairs := zb.GetConfig().Pairs
+	_ = zb.RefreshPairs()
+	pairs := zb.GetPairs()
 
 	assert.Contains(t, pairs, &Pair{"ETH", "USDT"})
 	assert.Contains(t, pairs, &Pair{"ETH", "BTC"})

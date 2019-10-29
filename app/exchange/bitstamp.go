@@ -7,7 +7,6 @@ import (
 
 type Bitstamp struct {
 	Exchange
-	Pairs []*Pair
 }
 
 type BitstampModel struct {
@@ -20,33 +19,37 @@ type BitstampPair struct {
 	Trading string `json:"trading"`
 }
 
-func (exc *Bitstamp) GetResponse(base, quote string) (*Response, *Error) {
+func (exc *Bitstamp) GetResponse(base, quote string) (*Response, error) {
 	var bst BitstampModel
 	config := exc.GetConfig()
-	excErr := HttpGet(config, fmt.Sprintf("/ticker/%s%s", base, quote), &bst)
+	excErr := exc.HttpGet(config, fmt.Sprintf("/ticker/%s%s", base, quote), &bst)
 	if excErr != nil {
 		return nil, excErr
 	}
-	volume := ToFloat64(bst.Volume) * ToFloat64(bst.Last)
-	return &Response{exc.GetConfig().Name, ToFloat64(bst.Last), volume}, nil
+	volume := exc.toFloat64(bst.Volume) * exc.toFloat64(bst.Last)
+	return &Response{exc.GetConfig().Name, exc.toFloat64(bst.Last), volume}, nil
 }
 
-func (exc *Bitstamp) SetPairs() *Error {
-	var pairs []BitstampPair
+func (exc *Bitstamp) RefreshPairs() error {
+	var bitstampPairs []BitstampPair
 	config := exc.GetConfig()
-	err := HttpGet(config, "/trading-pairs-info/", &pairs)
+	err := exc.HttpGet(config, "/trading-bitstampPairs-info/", &bitstampPairs)
 	if err != nil {
 		return err
 	}
-	for _, pair := range pairs {
+
+	var pairs []*Pair
+	for _, pair := range bitstampPairs {
 		if pair.Trading == "Enabled" {
 			currencies := strings.Split(pair.Name, "/")
-			exc.Pairs = append(exc.Pairs, &Pair{currencies[0], currencies[1]})
+			pairs = append(pairs, &Pair{currencies[0], currencies[1]})
 		}
 	}
+	exc.SetPairs(pairs)
+
 	return nil
 }
 
 func (exc *Bitstamp) GetConfig() *Config {
-	return &Config{BaseUrl: "https://bitstamp.net/api/v2", Name: "Bitstamp", Pairs: exc.Pairs}
+	return &Config{BaseURL: "https://bitstamp.net/api/v2", Name: "Bitstamp"}
 }

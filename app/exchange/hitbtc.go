@@ -6,7 +6,6 @@ import (
 
 type HitBtc struct {
 	Exchange
-	Pairs []*Pair
 }
 
 type HitBtcPair struct {
@@ -19,33 +18,33 @@ type HitBtcTicker struct {
 	Last        string `json:"last"`
 }
 
-func (exc *HitBtc) GetResponse(base, quote string) (*Response, *Error) {
+func (exc *HitBtc) GetResponse(base, quote string) (*Response, error) {
 	var ticker HitBtcTicker
 	config := exc.GetConfig()
-	err := HttpGet(config, fmt.Sprintf("/public/ticker/%s%s", base, quote), &ticker)
+	err := exc.HttpGet(config, fmt.Sprintf("/public/ticker/%s%s", base, quote), &ticker)
 	if err != nil {
 		return nil, err
 	}
-	return &Response{config.Name, ToFloat64(ticker.Last), ToFloat64(ticker.VolumeQuote)}, nil
+	return &Response{config.Name, exc.toFloat64(ticker.Last), exc.toFloat64(ticker.VolumeQuote)}, nil
 }
 
-func (exc *HitBtc) SetPairs() *Error {
-	var pairs []HitBtcPair
+func (exc *HitBtc) RefreshPairs() error {
+	var hitBtcPairs []HitBtcPair
 	config := exc.GetConfig()
-	err := HttpGet(config, "/public/symbol/", &pairs)
+	err := exc.HttpGet(config, "/public/symbol/", &hitBtcPairs)
 	if err != nil {
 		return err
 	}
-	for _, pair := range pairs {
-		exc.Pairs = append(exc.Pairs, &Pair{Base: pair.Base, Quote: pair.Quote})
+
+	var pairs []*Pair
+	for _, pair := range hitBtcPairs {
+		pairs = append(pairs, &Pair{Base: pair.Base, Quote: pair.Quote})
 	}
+	exc.SetPairs(pairs)
+
 	return nil
 }
 
 func (exc *HitBtc) GetConfig() *Config {
-	return &Config{
-		Name:    "HitBTC",
-		BaseUrl: "https://api.hitbtc.com/api/2",
-		Client:  nil,
-		Pairs:   exc.Pairs}
+	return &Config{Name: "HitBTC", BaseURL: "https://api.hitbtc.com/api/2"}
 }

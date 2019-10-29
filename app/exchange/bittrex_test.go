@@ -7,17 +7,15 @@ import (
 )
 
 func TestBittrex_SetPairs(t *testing.T) {
-
 	bittrex := Bittrex{}
-	bittrex.SetPairs()
-	pairs := bittrex.GetConfig().Pairs
+	_ = bittrex.RefreshPairs()
+	pairs := bittrex.GetPairs()
 
 	assert.Contains(t, pairs, &Pair{"BTC", "ETH"})
 	assert.Contains(t, pairs, &Pair{"BTC", "LTC"})
 }
 
 func TestBittrex_GetResponse(t *testing.T) {
-
 	bittrex := Bittrex{}
 	price, err := bittrex.GetResponse("BTC", "ETH")
 	if err != nil {

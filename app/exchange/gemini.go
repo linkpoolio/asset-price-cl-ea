@@ -7,7 +7,6 @@ import (
 
 type Gemini struct {
 	Exchange
-	Pairs []*Pair
 }
 
 type GeminiPairs []string
@@ -19,10 +18,10 @@ type GeminiTicker struct {
 
 type GeminiVolume map[string]interface{}
 
-func (exc *Gemini) GetResponse(base, quote string) (*Response, *Error) {
+func (exc *Gemini) GetResponse(base, quote string) (*Response, error) {
 	var gt GeminiTicker
 	config := exc.GetConfig()
-	excErr := HttpGet(config, fmt.Sprintf("/pubticker/%s%s", base, quote), &gt)
+	excErr := exc.HttpGet(config, fmt.Sprintf("/pubticker/%s%s", base, quote), &gt)
 	if excErr != nil {
 		return nil, excErr
 	}
@@ -34,32 +33,31 @@ func (exc *Gemini) GetResponse(base, quote string) (*Response, *Error) {
 
 	return &Response{
 		Name:   config.Name,
-		Price:  ToFloat64(gt.Last),
-		Volume: ToFloat64(qv),
+		Price:  exc.toFloat64(gt.Last),
+		Volume: exc.toFloat64(qv),
 	}, nil
 }
 
-func (exc *Gemini) SetPairs() *Error {
+func (exc *Gemini) RefreshPairs() error {
 	var gp GeminiPairs
 	config := exc.GetConfig()
 
-	err := HttpGet(config, "/symbols", &gp)
+	err := exc.HttpGet(config, "/symbols", &gp)
 	if err != nil {
 		return err
 	}
 
+	var pairs []*Pair
 	for _, p := range gp {
 		if len(p) == 6 {
-			exc.Pairs = append(exc.Pairs, &Pair{strings.ToUpper(p[:3]), strings.ToUpper(p[3:])})
+			pairs = append(pairs, &Pair{strings.ToUpper(p[:3]), strings.ToUpper(p[3:])})
 		}
 	}
+	exc.SetPairs(pairs)
+
 	return nil
 }
 
 func (exc *Gemini) GetConfig() *Config {
-	return &Config{
-		Name:    "Gemini",
-		BaseUrl: "https://api.gemini.com/v1",
-		Pairs:   exc.Pairs,
-	}
+	return &Config{Name: "Gemini", BaseURL: "https://api.gemini.com/v1"}
 }

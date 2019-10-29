@@ -7,7 +7,6 @@ import (
 
 type ZB struct {
 	Exchange
-	Pairs []*Pair
 }
 
 type ZBTicker struct {
@@ -19,36 +18,35 @@ type ZBMarket struct {
 	Ticker ZBTicker `json:"ticker"`
 }
 
-func (exc *ZB) GetResponse(base, quote string) (*Response, *Error) {
+func (exc *ZB) GetResponse(base, quote string) (*Response, error) {
 	var market ZBMarket
 	config := exc.GetConfig()
-	err := HttpGet(config, fmt.Sprintf("/ticker?market=%s_%s", base, quote), &market)
+	err := exc.HttpGet(config, fmt.Sprintf("/ticker?market=%s_%s", base, quote), &market)
 	if err != nil {
 		return nil, err
 	}
-	volume := ToFloat64(market.Ticker.Volume) * ToFloat64(market.Ticker.Last)
-	return &Response{Name: config.Name, Price: ToFloat64(market.Ticker.Last), Volume: volume}, nil
+	volume := exc.toFloat64(market.Ticker.Volume) * exc.toFloat64(market.Ticker.Last)
+	return &Response{Name: config.Name, Price: exc.toFloat64(market.Ticker.Last), Volume: volume}, nil
 }
 
-func (exc *ZB) SetPairs() *Error {
-	var pairs map[string]interface{}
+func (exc *ZB) RefreshPairs() error {
+	var zbPairs map[string]interface{}
 	config := exc.GetConfig()
-	err := HttpGet(config, "/markets", &pairs)
+	err := exc.HttpGet(config, "/markets", &zbPairs)
 	if err != nil {
 		return err
 	}
 
-	for pair := range pairs {
+	var pairs []*Pair
+	for pair := range zbPairs {
 		details := strings.Split(pair, "_")
-		exc.Pairs = append(exc.Pairs, &Pair{Base: strings.ToUpper(details[0]), Quote: strings.ToUpper(details[1])})
+		pairs = append(pairs, &Pair{Base: strings.ToUpper(details[0]), Quote: strings.ToUpper(details[1])})
 	}
+	exc.SetPairs(pairs)
+
 	return nil
 }
 
 func (exc *ZB) GetConfig() *Config {
-	return &Config{
-		Name:    "ZB",
-		BaseUrl: "http://api.zb.com/data/v1",
-		Client:  nil,
-		Pairs:   exc.Pairs}
+	return &Config{Name: "ZB", BaseURL: "http://api.zb.com/data/v1"}
 }
