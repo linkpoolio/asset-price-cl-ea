@@ -7,7 +7,6 @@ import (
 
 type Kraken struct {
 	Exchange
-	Pairs []*Pair
 }
 
 type KrakenPairs struct {
@@ -27,10 +26,10 @@ type KrakenTicker struct {
 	Volume    []string `json:"v"`
 }
 
-func (exc *Kraken) GetResponse(base, quote string) (*Response, *Error) {
+func (exc *Kraken) GetResponse(base, quote string) (*Response, error) {
 	var kt KrakenTickers
 	config := exc.GetConfig()
-	excErr := HttpGet(config, fmt.Sprintf("/Ticker?pair=%s%s", base, quote), &kt)
+	excErr := exc.HttpGet(config, fmt.Sprintf("/Ticker?pair=%s%s", base, quote), &kt)
 	if excErr != nil {
 		return nil, excErr
 	} else if len(kt.Result) == 0 {
@@ -41,8 +40,8 @@ func (exc *Kraken) GetResponse(base, quote string) (*Response, *Error) {
 		if strings.Contains(p, base) && strings.Contains(p, quote) {
 			return &Response{
 				Name:   config.Name,
-				Price:  ToFloat64(t.LastTrade[0]),
-				Volume: ToFloat64(t.Volume[1]),
+				Price:  exc.toFloat64(t.LastTrade[0]),
+				Volume: exc.toFloat64(t.Volume[1]),
 			}, nil
 		}
 	}
@@ -50,28 +49,27 @@ func (exc *Kraken) GetResponse(base, quote string) (*Response, *Error) {
 	return nil, &Error{Exchange: config.Name, Status: "400", Message: "Ticker call didn't return the requested pair"}
 }
 
-func (exc *Kraken) SetPairs() *Error {
+func (exc *Kraken) RefreshPairs() error {
 	var kp KrakenPairs
 	config := exc.GetConfig()
 
-	err := HttpGet(config, "/AssetPairs", &kp)
+	err := exc.HttpGet(config, "/AssetPairs", &kp)
 	if err != nil {
 		return err
 	}
 
+	var pairs []*Pair
 	for _, p := range kp.Result {
 		pSlice := strings.Split(p.WSName, "/")
 		if len(pSlice) == 2 {
-			exc.Pairs = append(exc.Pairs, &Pair{pSlice[0], pSlice[1]})
+			pairs = append(pairs, &Pair{pSlice[0], pSlice[1]})
 		}
 	}
+	exc.SetPairs(pairs)
+
 	return nil
 }
 
 func (exc *Kraken) GetConfig() *Config {
-	return &Config{
-		Name:    "Kraken",
-		BaseUrl: "https://api.kraken.com/0/public",
-		Pairs:   exc.Pairs,
-	}
+	return &Config{Name: "Kraken", BaseURL: "https://api.kraken.com/0/public"}
 }

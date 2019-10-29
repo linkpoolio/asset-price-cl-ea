@@ -8,8 +8,8 @@ import (
 
 func TestHuobi_SetPairs(t *testing.T) {
 	huobi := Huobi{}
-	huobi.SetPairs()
-	pairs := huobi.GetConfig().Pairs
+	_ = huobi.RefreshPairs()
+	pairs := huobi.GetPairs()
 
 	assert.Contains(t, pairs, &Pair{"ETH", "USDT"})
 	assert.Contains(t, pairs, &Pair{"ETH", "BTC"})

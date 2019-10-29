@@ -7,17 +7,15 @@ import (
 )
 
 func TestBitfinex_SetPairs(t *testing.T) {
-
 	bitfinex := Bitfinex{}
-	bitfinex.SetPairs()
-	pairs := bitfinex.GetConfig().Pairs
+	_ = bitfinex.RefreshPairs()
+	pairs := bitfinex.GetPairs()
 
 	assert.Contains(t, pairs, &Pair{"ETH", "USD"})
 	assert.Contains(t, pairs, &Pair{"ETH", "BTC"})
 }
 
 func TestBitfinex_GetResponse(t *testing.T) {
-
 	bitfinex := Bitfinex{}
 	price, err := bitfinex.GetResponse("ETH", "USD")
 	if err != nil {

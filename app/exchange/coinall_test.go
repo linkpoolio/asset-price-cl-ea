@@ -8,8 +8,8 @@ import (
 
 func TestCoinall_SetPairs(t *testing.T) {
 	coinall := Coinall{}
-	coinall.SetPairs()
-	pairs := coinall.GetConfig().Pairs
+	_ = coinall.RefreshPairs()
+	pairs := coinall.GetPairs()
 
 	assert.Contains(t, pairs, &Pair{"ETH", "USDT"})
 	assert.Contains(t, pairs, &Pair{"ETH", "BTC"})

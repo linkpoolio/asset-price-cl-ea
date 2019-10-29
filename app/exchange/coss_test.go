@@ -8,8 +8,8 @@ import (
 
 func TestCOSS_SetPairs(t *testing.T) {
 	coss := COSS{}
-	coss.SetPairs()
-	pairs := coss.GetConfig().Pairs
+	_ = coss.RefreshPairs()
+	pairs := coss.GetPairs()
 
 	assert.Contains(t, pairs, &Pair{"ETH", "USD"})
 	assert.Contains(t, pairs, &Pair{"ETH", "BTC"})
@@ -17,7 +17,7 @@ func TestCOSS_SetPairs(t *testing.T) {
 
 func TestCOSS_GetResponse(t *testing.T) {
 	coss := COSS{}
-	price, err := coss.GetResponse("ETH", "USD")
+	price, err := coss.GetResponse("ETH", "BTC")
 	if err != nil {
 		log.Fatal(err)
 	}

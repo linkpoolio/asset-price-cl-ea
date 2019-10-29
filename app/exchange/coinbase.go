@@ -7,10 +7,9 @@ import (
 
 type Coinbase struct {
 	Exchange
-	Pairs []*Pair
 }
 
-func (exc *Coinbase) GetResponse(base, quote string) (*Response, *Error) {
+func (exc *Coinbase) GetResponse(base, quote string) (*Response, error) {
 	clientInterface := exc.GetConfig().Client
 	client := clientInterface.(*gdax.Client)
 
@@ -22,7 +21,7 @@ func (exc *Coinbase) GetResponse(base, quote string) (*Response, *Error) {
 	return &Response{exc.GetConfig().Name, ticker.Price, ticker.Volume * ticker.Price}, nil
 }
 
-func (exc *Coinbase) SetPairs() *Error {
+func (exc *Coinbase) RefreshPairs() error {
 	clientInterface := exc.GetConfig().Client
 	client := clientInterface.(*gdax.Client)
 
@@ -30,13 +29,16 @@ func (exc *Coinbase) SetPairs() *Error {
 	if err != nil {
 		return &Error{Exchange: exc.GetConfig().Name, Message: err.Error()}
 	}
+
+	var pairs []*Pair
 	for _, product := range products {
-		exc.Pairs = append(exc.Pairs, &Pair{product.BaseCurrency, product.QuoteCurrency})
+		pairs = append(pairs, &Pair{product.BaseCurrency, product.QuoteCurrency})
 	}
+	exc.SetPairs(pairs)
 
 	return nil
 }
 
 func (exc *Coinbase) GetConfig() *Config {
-	return &Config{Name: "Coinbase", Client: gdax.NewClient("", "", ""), Pairs: exc.Pairs}
+	return &Config{Name: "Coinbase", Client: gdax.NewClient("", "", "")}
 }

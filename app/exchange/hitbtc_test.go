@@ -8,8 +8,8 @@ import (
 
 func TestHitBtc_SetPairs(t *testing.T) {
 	hitBtc := HitBtc{}
-	hitBtc.SetPairs()
-	pairs := hitBtc.GetConfig().Pairs
+	_ = hitBtc.RefreshPairs()
+	pairs := hitBtc.GetPairs()
 
 	assert.Contains(t, pairs, &Pair{"ETH", "USD"})
 	assert.Contains(t, pairs, &Pair{"ETH", "BTC"})

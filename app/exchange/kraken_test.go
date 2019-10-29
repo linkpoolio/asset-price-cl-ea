@@ -8,8 +8,8 @@ import (
 
 func TestKraken_SetPairs(t *testing.T) {
 	kraken := Kraken{}
-	kraken.SetPairs()
-	pairs := kraken.GetConfig().Pairs
+	_ = kraken.RefreshPairs()
+	pairs := kraken.GetPairs()
 
 	assert.Contains(t, pairs, &Pair{"ETH", "USD"})
 	assert.Contains(t, pairs, &Pair{"ETH", "EUR"})

@@ -6,7 +6,6 @@ import (
 
 type Bittrex struct {
 	Exchange
-	Pairs []*Pair
 }
 
 type BittrexTicker struct {
@@ -32,33 +31,33 @@ type BittrexSummaries struct {
 	Result []BittrexSummary `json:"result"`
 }
 
-func (exc *Bittrex) GetResponse(base, quote string) (*Response, *Error) {
+func (exc *Bittrex) GetResponse(base, quote string) (*Response, error) {
 	var summaries BittrexSummaries
 	config := exc.GetConfig()
-	err := HttpGet(config, fmt.Sprintf("/public/getmarketsummary?market=%s-%s", base, quote), &summaries)
+	err := exc.HttpGet(config, fmt.Sprintf("/public/getmarketsummary?market=%s-%s", base, quote), &summaries)
 	if err != nil {
 		return nil, err
 	}
 	return &Response{Name: config.Name, Price: summaries.Result[0].Last, Volume: summaries.Result[0].Volume}, nil
 }
 
-func (exc *Bittrex) SetPairs() *Error {
+func (exc *Bittrex) RefreshPairs() error {
 	var markets BittrexMarkets
 	config := exc.GetConfig()
-	err := HttpGet(config, "/public/getmarkets", &markets)
+	err := exc.HttpGet(config, "/public/getmarkets", &markets)
 	if err != nil {
 		return err
 	}
+
+	var pairs []*Pair
 	for _, pair := range markets.Result {
-		exc.Pairs = append(exc.Pairs, &Pair{Base: pair.BaseCurrency, Quote: pair.MarketCurrency})
+		pairs = append(pairs, &Pair{Base: pair.BaseCurrency, Quote: pair.MarketCurrency})
 	}
+	exc.SetPairs(pairs)
+
 	return nil
 }
 
 func (exc *Bittrex) GetConfig() *Config {
-	return &Config{
-		Name:    "Bittrex",
-		BaseUrl: "https://bittrex.com/api/v1.1",
-		Client:  nil,
-		Pairs:   exc.Pairs}
+	return &Config{Name: "Bittrex", BaseURL: "https://bittrex.com/api/v1.1"}
 }

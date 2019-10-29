@@ -6,7 +6,6 @@ import (
 
 type Binance struct {
 	Exchange
-	Pairs []*Pair
 }
 
 type BinanceProduct struct {
@@ -23,34 +22,37 @@ type BinanceInfo struct {
 	Symbols []*BinanceSymbol `json:"symbols"`
 }
 
-func (exc *Binance) GetResponse(base, quote string) (*Response, *Error) {
+func (exc *Binance) GetResponse(base, quote string) (*Response, error) {
 	var bp BinanceProduct
 	config := exc.GetConfig()
-	excErr := HttpGet(config, fmt.Sprintf("/ticker/24hr?symbol=%s%s", base, quote), &bp)
+	excErr := exc.HttpGet(config, fmt.Sprintf("/ticker/24hr?symbol=%s%s", base, quote), &bp)
 	if excErr != nil {
 		return nil, excErr
 	}
-	return &Response{config.Name, ToFloat64(bp.LastPrice), ToFloat64(bp.Volume)}, nil
+	return &Response{config.Name, exc.toFloat64(bp.LastPrice), exc.toFloat64(bp.Volume)}, nil
 }
 
-func (exc *Binance) SetPairs() *Error {
+func (exc *Binance) RefreshPairs() error {
 	var bi BinanceInfo
 	config := exc.GetConfig()
 
-	err := HttpGet(config, "/exchangeInfo", &bi)
+	err := exc.HttpGet(config, "/exchangeInfo", &bi)
 	if err != nil {
 		return err
 	}
 
+	var pairs []*Pair
 	for _, product := range bi.Symbols {
-		exc.Pairs = append(exc.Pairs, &Pair{product.BaseAsset, product.QuoteAsset})
+		pairs = append(pairs, &Pair{product.BaseAsset, product.QuoteAsset})
 	}
+	exc.SetPairs(pairs)
+
 	return nil
 }
 
 func (exc *Binance) GetConfig() *Config {
 	return &Config{
 		Name:    "Binance",
-		BaseUrl: "https://www.binance.com/api/v1",
-		Pairs:   exc.Pairs}
+		BaseURL: "https://www.binance.com/api/v1",
+	}
 }

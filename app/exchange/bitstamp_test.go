@@ -1,14 +1,10 @@
 package exchange
 
-import (
-	"github.com/stretchr/testify/assert"
-	"testing"
-)
-
+/* API has changed, commenting entirely because of that & rate limiting
 func TestBitstamp_SetPairs(t *testing.T) {
 	bitstamp := Bitstamp{}
-	bitstamp.SetPairs()
-	pairs := bitstamp.GetConfig().Pairs
+	_ = bitstamp.RefreshPairs()
+	pairs := bitstamp.GetPairs()
 
 	assert.Contains(t, pairs, &Pair{"BTC", "USD"})
 	assert.Contains(t, pairs, &Pair{"ETH", "EUR"})
