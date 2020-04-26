@@ -14,6 +14,7 @@ import (
 
 type Output struct {
 	ID        string            `json:"id"`
+	Result    float64           `json:"result"`
 	Price     string            `json:"price"`
 	Volume    string            `json:"volume"`
 	USDPrice  null.String       `json:"usdPrice"`
@@ -34,6 +35,7 @@ func GetPrice(base, quote string) (*Output, error) {
 	}
 
 	p, v := aggregateResponses(responses)
+	output.Result = p
 	output.Price = formatFloat(p)
 	output.Volume = formatFloat(v)
 
