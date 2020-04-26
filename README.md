@@ -1,4 +1,4 @@
-# Asset Price External Adaptor ![Travis-CI](https://travis-ci.org/linkpoolio/asset-price-cl-ea.svg?branch=master) [![codecov](https://codecov.io/gh/linkpoolio/asset-price-cl-ea/branch/master/graph/badge.svg)](https://codecov.io/gh/linkpoolio/asset-price-cl-ea)
+# Asset Price External Adaptor ![Build](https://github.com/linkpoolio/asset-price-cl-ea/workflows/Build/badge.svg) [![codecov](https://codecov.io/gh/linkpoolio/asset-price-cl-ea/branch/master/graph/badge.svg)](https://codecov.io/gh/linkpoolio/asset-price-cl-ea)
 External Adaptor for Chainlink which aggregates prices of crypto assets from multiple exchanges based on a weighted average of their volume.
 
 This adaptor is built using the bridges framework: https://github.com/linkpoolio/bridges
@@ -7,11 +7,10 @@ This adaptor is built using the bridges framework: https://github.com/linkpoolio
 
 - Binance
 - Bitfinex
-- Bitstamp (Highly rate limited)
+- Bitstamp (highly rate limited)
 - Bittrex
 - Coinall
 - Coinbase Pro
-- COSS
 - HitBTC
 - Huobi Pro
 - Kraken
@@ -87,6 +86,7 @@ Should return something similar to:
         "base": "BTC",
         "quote": "USD",
         "id": "BTC-USD",
+        "result": 3836.4042305857843,
         "price": "3836.4042305857843",
         "volume": "131747894.87525243",
         "usdPrice": "3836.4042305857843",
@@ -115,6 +115,7 @@ curl -X POST -H 'Content-Type: application/json' -d '{ "jobRunId": "1234", "data
         "base": "LINK",
         "quote": "ETH",
         "id": "LINK-ETH",
+        "result": 0.0031786459052877327,
         "price": "0.0031786459052877327",
         "volume": "797.6642187877999",
         "usdPrice": "0.43956635389465454",
