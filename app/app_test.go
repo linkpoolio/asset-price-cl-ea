@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
-var c *Config
-
 func init() {
-	c = NewConfig()
-	StartPairsTicker(c)
+	StartPairsTicker(&Config{TickerInterval: time.Minute})
 }
 
 func TestBTCUSD(t *testing.T) {
@@ -37,7 +35,7 @@ func TestETHEUR(t *testing.T) {
 	assert.True(t, r.Price != "0", "price returned from API is 0")
 	assert.True(t, r.Volume != "0", "volume returned from API is 0")
 	assert.True(t, len(r.Exchanges) > 1, "exchanges returned from API is less than 2")
-	assert.Equal(t, r.USDPrice.String, "", "usd price returned from API is 0")
+	assert.True(t,  r.USDPrice.String != "0", "usd price returned from API is 0")
 	assert.Equal(t, r.ID, "ETH-EUR", "id of trading pair isn't correct")
 }
 
