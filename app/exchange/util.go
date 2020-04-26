@@ -15,7 +15,6 @@ var (
 		//&Bitstamp{}, (Extreme rate limit)
 		&Bittrex{},
 		&Coinall{},
-		&COSS{},
 		&Coinbase{},
 		&Gemini{},
 		&Huobi{},
