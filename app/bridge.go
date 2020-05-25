@@ -1,8 +1,9 @@
 package app
 
 import (
-	"github.com/linkpoolio/bridges"
 	"net/http"
+
+	"github.com/linkpoolio/bridges"
 )
 
 type AssetPrice struct{}
@@ -15,7 +16,7 @@ func (ap *AssetPrice) Opts() *bridges.Opts {
 	return &bridges.Opts{
 		Name:   "Asset Price",
 		Lambda: true,
-		Path:   "/price",
+		Path:   "/",
 	}
 }
 

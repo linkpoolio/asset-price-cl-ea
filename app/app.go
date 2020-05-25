@@ -3,23 +3,24 @@ package app
 import (
 	"errors"
 	"fmt"
-	"github.com/linkpoolio/asset-price-cl-ea/app/exchange"
-	log "github.com/sirupsen/logrus"
-	"gopkg.in/guregu/null.v3"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/linkpoolio/asset-price-cl-ea/app/exchange"
+	log "github.com/sirupsen/logrus"
+	"gopkg.in/guregu/null.v3"
 )
 
 type Output struct {
-	ID        string            `json:"id"`
-	Result    float64           `json:"result"`
-	Price     string            `json:"price"`
-	Volume    string            `json:"volume"`
-	USDPrice  null.String       `json:"usdPrice"`
-	Exchanges []string          `json:"exchanges"`
-	Warnings  []error           `json:"warnings,omitempty"`
+	ID        string      `json:"id"`
+	Result    float64     `json:"result"`
+	Price     string      `json:"price"`
+	Volume    string      `json:"volume"`
+	USDPrice  null.String `json:"usdPrice"`
+	Exchanges []string    `json:"exchanges"`
+	Warnings  []error     `json:"warnings,omitempty"`
 }
 
 func GetPrice(base, quote string) (*Output, error) {
@@ -45,7 +46,7 @@ func GetPrice(base, quote string) (*Output, error) {
 		qup, ee := getQuoteUSDPrice(q)
 		output.Warnings = append(output.Warnings, ee...)
 		if qup != 0 {
-			output.USDPrice = null.StringFrom(formatFloat(qup*p))
+			output.USDPrice = null.StringFrom(formatFloat(qup * p))
 		}
 	}
 
@@ -63,7 +64,6 @@ func StartPairsTicker(c *Config) {
 	if c == nil {
 		return
 	}
-
 	ticker := time.NewTicker(c.TickerInterval)
 	go func() {
 		for range ticker.C {
@@ -75,7 +75,6 @@ func StartPairsTicker(c *Config) {
 
 func getExchangeResponses(base, quote string) ([]*exchange.Response, []error) {
 	exchanges := getExchangesWithPairSupport(base, quote)
-
 	var wg sync.WaitGroup
 	wg.Add(len(exchanges))
 
@@ -159,7 +158,6 @@ func getExchangesWithPairSupport(base, quote string) []exchange.Interface {
 
 func setExchangePairs() {
 	var wg sync.WaitGroup
-
 	exchanges := exchange.GetSupportedExchanges()
 	wg.Add(len(exchanges))
 
