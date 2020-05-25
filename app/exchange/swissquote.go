@@ -58,7 +58,7 @@ func (exc *Swissquote) GetResponse(base, quote string) (*Response, error) {
 
 func (exc *Swissquote) RefreshPairs() error {
 	//Hard coded pairs
-	pairs := []*Pair{&Pair{"XAU", "USD"}, &Pair{"XAG", "USD"}, &Pair{"XAU", "EUR"}, &Pair{"XAG", "EUR"}, &Pair{"XAG", "GBP"}, &Pair{"XAU", "GCP"}}
+	pairs := []*Pair{&Pair{"XAU", "USD"}, &Pair{"XAG", "USD"}, &Pair{"XAU", "EUR"}, &Pair{"XAG", "EUR"}, &Pair{"XAG", "GBP"}, &Pair{"XAU", "GBP"}, &Pair{"XAU", "AUD"}, &Pair{"XAG", "AUD"}, &Pair{"XAG", "CHF"}, &Pair{"XAU", "CHF"}}
 	exc.SetPairs(pairs)
 
 	return nil
